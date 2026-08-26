@@ -132,6 +132,14 @@
     font-family:inherit; margin-bottom:10px}
   .box textarea{height:140px; resize:vertical}
   .box .bts{display:flex; gap:8px; justify-content:flex-end}
+  .filerow{display:flex; align-items:center; gap:10px; margin-bottom:10px}
+  .filebtn{background:#1f3a2a; color:var(--acc); border:1px solid #2c5340;
+    border-radius:8px; padding:8px 14px; font-size:12.5px; font-weight:bold; cursor:pointer}
+  .filebtn:hover{background:#2c5340}
+  .fname{font-size:12px; color:var(--mut); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .moderow{display:flex; gap:16px; font-size:12.5px; color:var(--mut); margin-bottom:10px}
+  .moderow label{cursor:pointer}
+  .moderow b{color:var(--fg)}
 
   @media (max-width:700px){
     .app{flex-direction:column}
@@ -191,8 +199,19 @@
 <div class="modal" id="m-imp">
   <div class="box">
     <h3>가져오기</h3>
-    <p>클로드(또는 백업 파일)가 준 코드를 그대로 붙여넣으면 날짜별로 합쳐져요.</p>
-    <textarea id="impbox" placeholder='{"days":[...]} 또는 {"date":"2026-08-26","entries":[...]}'></textarea>
+    <p>클로드가 만들어 준 <b>data.json</b> 파일을 고르거나, 코드를 붙여넣으세요.
+       넣은 뒤 아래 <b>[저장]</b>을 누르면 홈페이지에 올라가요.</p>
+    <div class="filerow">
+      <label class="filebtn">📁 파일 고르기
+        <input type="file" id="impfile" accept=".json,application/json" hidden>
+      </label>
+      <span id="impname" class="fname">고른 파일 없음</span>
+    </div>
+    <div class="moderow">
+      <label><input type="radio" name="impmode" value="merge" checked> 기존에 <b>추가</b></label>
+      <label><input type="radio" name="impmode" value="replace"> 전체 <b>교체</b> (정리본 받을 때)</label>
+    </div>
+    <textarea id="impbox" placeholder='또는 코드 붙여넣기 — {"days":[...]}'></textarea>
     <div class="bts">
       <button class="btn-sub" id="imp-x">닫기</button>
       <button class="btn-main" id="imp-ok">넣기</button>
@@ -469,26 +488,46 @@
     renderMenu(); toast(token?"저장 설정 완료":"열쇠를 지웠어요");
   };
   document.getElementById("imp").onclick=function(){
-    document.getElementById("impbox").value="";
+    document.getElementById("impbox").value=""; impText="";
+    document.getElementById("impname").textContent="고른 파일 없음";
     document.getElementById("m-imp").classList.add("show"); };
   document.getElementById("imp-x").onclick=function(){
     document.getElementById("m-imp").classList.remove("show"); };
+  var impText="";
+  document.getElementById("impfile").onchange=function(ev){
+    var f=ev.target.files&&ev.target.files[0];
+    if(!f) return;
+    document.getElementById("impname").textContent=f.name;
+    var fr=new FileReader();
+    fr.onload=function(){ impText=String(fr.result||""); };
+    fr.readAsText(f,"utf-8");
+  };
   document.getElementById("imp-ok").onclick=function(){
-    var t=document.getElementById("impbox").value.trim();
+    var t=(document.getElementById("impbox").value.trim())||impText.trim();
+    if(!t){ alert("파일을 고르거나 코드를 붙여넣어 주세요"); return; }
+    var mode=document.querySelector('input[name="impmode"]:checked').value;
     try{
       var d=JSON.parse(t);
       if(d.date&&d.entries) d={days:[d]};
       if(!d.days) throw 0;
-      d.days.forEach(function(od){
-        var ex=state.days.find(function(x){return x.date===od.date;});
-        if(ex) ex.entries=ex.entries.concat(od.entries);
-        else state.days.push(od);
-        sel=od.date;
-      });
+      if(mode==="replace"){
+        if(!confirm("지금 노트를 이 자료로 전부 바꿀까요? ("+d.days.length+"일치)")) return;
+        state={days:d.days};
+        sel=state.days.length?state.days[0].date:null;
+      } else {
+        d.days.forEach(function(od){
+          var ex=state.days.find(function(x){return x.date===od.date;});
+          if(ex) ex.entries=ex.entries.concat(od.entries);
+          else state.days.push(od);
+          sel=od.date;
+        });
+      }
       markDirty(); renderMenu(); renderView();
       document.getElementById("m-imp").classList.remove("show");
-      toast("넣었어요 — 확인 후 [저장]을 눌러줘요");
-    }catch(e){ alert("코드 형식이 안 맞아요 — 그대로 전체를 붙여넣어줘요"); }
+      impText=""; document.getElementById("impbox").value="";
+      document.getElementById("impname").textContent="고른 파일 없음";
+      toast("넣었어요 — 아래 [저장]을 누르면 홈페이지에 올라가요", 4000);
+    }catch(e){ alert("파일/코드 형식이 안 맞아요 — data.json 을 그대로 골라주세요"); }
   };
   document.getElementById("exp").onclick=function(){
     var blob=new Blob([JSON.stringify(state,null,1)],{type:"application/json"});
