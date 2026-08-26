@@ -20,7 +20,7 @@
   a{color:var(--blue); text-decoration:none}
   .app{display:flex; min-height:100vh}
 
-  aside{width:196px; flex:0 0 196px; background:var(--side);
+  aside{width:206px; flex:0 0 206px; background:var(--side);
     border-right:1px solid var(--line); padding:20px 0 90px}
   .brand{padding:0 18px 14px; border-bottom:1px solid var(--line)}
   .brand .t{font-size:17px; font-weight:bold; letter-spacing:.3px}
@@ -30,9 +30,10 @@
     background:var(--acc); color:#08130c; border:none; border-radius:10px;
     padding:9px; font-size:13px; font-weight:bold; cursor:pointer; font-family:inherit}
   .newday:hover{filter:brightness(1.08)}
-  .toolrow{display:flex; gap:6px; margin:8px 14px 4px}
-  .tool{flex:1; background:none; border:1px solid var(--line); color:var(--mut);
-    border-radius:8px; padding:6px; font-size:11px; cursor:pointer; font-family:inherit}
+  .toolrow{display:flex; gap:5px; margin:8px 12px 4px}
+  .tool{flex:1 1 0; min-width:0; white-space:nowrap; background:none;
+    border:1px solid var(--line); color:var(--mut);
+    border-radius:8px; padding:6px 2px; font-size:10.5px; cursor:pointer; font-family:inherit}
   .tool:hover{color:var(--acc); border-color:var(--acc)}
   .yr{padding:14px 18px 6px; font-size:11px; color:var(--dim); font-weight:bold;
     letter-spacing:1.5px}
@@ -230,11 +231,15 @@
 
   /* ---------- 불러오기 ---------- */
   function load(){
-    fetch(RAW+"?t="+Date.now()).then(function(r){
+    var t=Date.now();
+    fetch("data.json?t="+t,{cache:"no-store"}).then(function(r){
       if(!r.ok) throw 0; return r.json();
+    }).catch(function(){
+      return fetch(RAW+"?t="+t,{cache:"no-store"}).then(function(r){
+        if(!r.ok) throw 0; return r.json(); });
     }).then(function(d){
       state=d&&d.days?d:{days:[]};
-      merge(loadLocal());               // 임시 저장분 합침
+      if(localDirty()) merge(loadLocal());   // 저장 안 한 수정분만 합침
       after();
     }).catch(function(){
       state=loadLocal()||{days:[]};
@@ -246,6 +251,12 @@
       sel=state.days.length?state.days[0].date:null;
       renderMenu(); renderView();
     }
+  }
+  function localDirty(){
+    try{ return localStorage.getItem("swaynote_dirty")==="1"; }catch(e){ return false; }
+  }
+  function setDirty(v){
+    try{ localStorage.setItem("swaynote_dirty", v?"1":"0"); }catch(e){}
   }
   function loadLocal(){
     try{ var s=localStorage.getItem("swaynote_data");
@@ -399,7 +410,7 @@
   };
 
   /* ---------- 저장 ---------- */
-  function markDirty(){ dirty=true;
+  function markDirty(){ dirty=true; setDirty(true);
     try{ localStorage.setItem("swaynote_data",JSON.stringify(state)); }catch(e){}
     document.getElementById("savebar").classList.add("show");
     document.getElementById("savest").textContent=
@@ -407,7 +418,7 @@
            :"이 브라우저에 임시 저장됨 — [⚙ 저장설정]하면 어디서든 보여요";
   }
   document.getElementById("undo").onclick=function(){
-    state=JSON.parse(saved); dirty=false;
+    state=JSON.parse(saved); dirty=false; setDirty(false);
     try{ localStorage.setItem("swaynote_data",saved); }catch(e){}
     sel=state.days.length?state.days[0].date:null;
     document.getElementById("savebar").classList.remove("show");
@@ -434,7 +445,7 @@
         body:JSON.stringify(payload)});
     })
     .then(function(r){
-      if(r&&r.ok){ dirty=false; saved=JSON.stringify(state);
+      if(r&&r.ok){ dirty=false; setDirty(false); saved=JSON.stringify(state);
         try{ localStorage.setItem("swaynote_data",saved); }catch(e){}
         document.getElementById("savebar").classList.remove("show");
         toast("저장 완료 — 어디서 열어도 이 내용이 보여요"); }
