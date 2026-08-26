@@ -216,7 +216,7 @@
       <button class="tool" id="cfg">⚙ 저장설정</button>
     </div>
     <div id="menu"></div>
-    <div class="ver" id="ver">v14 · 폰 보내기</div>
+    <div class="ver" id="ver">v15 · 폴더명</div>
   </aside>
 
   <main>
@@ -301,6 +301,7 @@
     ["ko","해석 (한)","ko","한국어 해석"],
     ["yt","유튜브 제목","","유튜브에 올릴 때 쓰는 제목"],
     ["desc","설명란","","작품명 + 줄바꿈 + 해시태그"],
+    ["folder","폴더명","","CapCut 프로젝트 폴더 이름"],
     ["file","파일명","","영상 파일 이름"],
     ["link","레퍼런스","","업로드 후 쇼츠 링크"]
   ];
@@ -350,7 +351,7 @@
   }
   /* 폴더 자료 병합 — 내가 쓴 내용은 덮지 않고 빈 칸만 채움 */
   function mergeIn(days){
-    var KEYS=["work","ch","title","ko","yt","desc","file","link","script"];
+    var KEYS=["work","ch","title","ko","yt","desc","folder","file","link","script"];
     var newest=null;
     days.forEach(function(od){
       var day=state.days.find(function(x){ return x.date===od.date; });
@@ -496,7 +497,7 @@
     var add=el("button","addbtn","＋ 영상 추가");
     add.onclick=function(){
       day.entries.push({label:"("+(day.entries.length+1)+")",work:"",ch:"",
-        title:"",ko:"",yt:"",desc:"",file:"",link:"",script:""});
+        title:"",ko:"",yt:"",desc:"",folder:"",file:"",link:"",script:""});
       markDirty(); renderMenu(); renderView(); refreshKakao();
     };
     v.appendChild(add);
@@ -514,7 +515,7 @@
     var t=today();
     if(!state.days.find(function(d){return d.date===t;})){
       state.days.unshift({date:t,entries:[
-        {label:"(1)",work:"",ch:"",title:"",ko:"",yt:"",desc:"",file:"",link:"",script:""}]});
+        {label:"(1)",work:"",ch:"",title:"",ko:"",yt:"",desc:"",folder:"",file:"",link:"",script:""}]});
       markDirty();
     }
     sel=t; renderMenu(); renderView(); refreshKakao();
