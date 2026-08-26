@@ -51,20 +51,46 @@
     border:1px solid var(--line); border-radius:12px; padding:1px 7px}
   .dt.on .c{color:var(--acc); border-color:#2c5340}
 
-  .kakao{margin:18px 12px 0; padding:12px 10px; border-top:1px solid var(--line)}
-  .k-head{font-size:11.5px; color:var(--mut); font-weight:bold; margin-bottom:3px}
-  .k-sub{font-size:10.5px; color:var(--dim); margin-bottom:8px; line-height:1.5}
-  .k-btn{width:100%; background:var(--acc); color:#08130c; border:none; border-radius:9px;
-    padding:8px; font-size:12px; font-weight:bold; cursor:pointer; font-family:inherit;
-    margin-bottom:5px}
+  main{flex:1; min-width:0; padding:22px 20px 110px; max-width:1180px}
+
+  /* ---- 폰 목업 ---- */
+  .phonewrap{flex:0 0 330px; padding:22px 18px 40px; position:sticky; top:0;
+    align-self:flex-start; max-height:100vh; display:flex; flex-direction:column; gap:10px}
+  .phone{background:#05100a; border:9px solid #1c3626; border-radius:34px;
+    box-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 0 0 1px #2c5340;
+    padding:0 0 10px; position:relative; overflow:hidden; flex:1; min-height:0;
+    display:flex; flex-direction:column}
+  .notch{width:96px; height:16px; background:#1c3626; border-radius:0 0 12px 12px;
+    margin:0 auto; flex:0 0 auto}
+  .pscreen{flex:1; min-height:0; display:flex; flex-direction:column; padding:6px 8px 0}
+  .ptop{display:flex; align-items:baseline; gap:8px; padding:6px 8px 8px;
+    border-bottom:1px solid #17301f}
+  .pt-title{font-size:12px; font-weight:bold; color:var(--fg)}
+  .pt-date{font-size:10.5px; color:var(--dim); margin-left:auto}
+  .pbody{flex:1; overflow:auto; padding:10px 4px 14px; display:flex;
+    flex-direction:column; gap:10px}
+  .bub{background:#16301f; border:1px solid #24462e; border-radius:14px 14px 14px 4px;
+    padding:9px 11px; font-size:12px; line-height:1.65; white-space:pre-wrap;
+    word-break:break-word; position:relative}
+  .bub .bh{display:flex; align-items:center; gap:6px; margin-bottom:5px}
+  .bub .bn{background:var(--acc); color:#08130c; font-size:10px; font-weight:bold;
+    border-radius:6px; padding:1px 6px}
+  .bub .bl{font-size:10.5px; color:var(--mut); overflow:hidden;
+    text-overflow:ellipsis; white-space:nowrap}
+  .bub .bcp{margin-left:auto; background:none; border:none; color:var(--dim);
+    font-size:10.5px; cursor:pointer; font-family:inherit; padding:2px 4px}
+  .bub .bcp:hover{color:var(--acc)}
+  .bub .tt{color:var(--yel); font-weight:bold}
+  .bub .dd{color:#bcd9c4}
+  .bub .sep{height:7px}
+  .bub .none{color:var(--dim); font-style:normal}
+  .phome{width:80px; height:4px; background:#24462e; border-radius:4px; margin:8px auto 0}
+  .pempty{color:var(--dim); font-size:12px; text-align:center; padding:40px 10px; line-height:1.9}
+  .k-btn{width:100%; background:var(--acc); color:#08130c; border:none; border-radius:10px;
+    padding:10px; font-size:12.5px; font-weight:bold; cursor:pointer; font-family:inherit}
   .k-btn:hover{filter:brightness(1.08)}
-  .k-btn.ghost{background:none; color:var(--mut); border:1px solid var(--line); font-weight:normal}
-  .k-btn.ghost:hover{color:var(--acc); border-color:var(--acc)}
   .k-btn.ok{background:#a8f07a}
-  .kprev{background:var(--field); border:1px solid var(--line); border-radius:10px;
-    padding:14px; font-size:12.5px; line-height:1.7; white-space:pre-wrap;
-    max-height:60vh; overflow:auto; word-break:break-word; margin-bottom:10px}
-  main{flex:1; padding:22px 20px 110px; max-width:1180px}
+  @media (max-width:1240px){ .phonewrap{display:none} }
   .note{background:#233a17; border:1px solid #3c5c2a; border-radius:10px;
     padding:9px 13px; font-size:12.5px; margin-bottom:14px; color:#d9f0c8; display:none}
   .note.show{display:block}
@@ -185,12 +211,6 @@
       <button class="tool" id="cfg">⚙ 저장설정</button>
     </div>
     <div id="menu"></div>
-    <div class="kakao" id="kakaobox">
-      <div class="k-head">📱 폰으로 보내기</div>
-      <div class="k-sub" id="ksub"></div>
-      <button class="k-btn" id="kcopy">이 날짜 전체 복사</button>
-      <button class="k-btn ghost" id="kview">미리보기</button>
-    </div>
   </aside>
 
   <main>
@@ -198,6 +218,18 @@
     <div class="note" id="msg"></div>
     <div id="view"></div>
   </main>
+
+  <div class="phonewrap">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="pscreen">
+        <div class="ptop"><span class="pt-title">업로드 메모</span><span class="pt-date" id="pdate"></span></div>
+        <div class="pbody" id="pbody"></div>
+      </div>
+      <div class="phome"></div>
+    </div>
+    <button class="k-btn" id="kcopy">이 날짜 전체 복사</button>
+  </div>
 </div>
 
 <div class="savebar" id="savebar">
@@ -219,17 +251,6 @@
     <div class="bts">
       <button class="btn-sub" id="cfg-x">닫기</button>
       <button class="btn-main" id="cfg-ok">저장</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal" id="m-kk">
-  <div class="box" style="max-width:620px">
-    <h3>📱 폰으로 보낼 내용</h3>
-    <div class="kprev" id="kprev"></div>
-    <div class="bts">
-      <button class="btn-sub" id="kk-x">닫기</button>
-      <button class="btn-main" id="kk-copy">복사</button>
     </div>
   </div>
 </div>
@@ -404,7 +425,7 @@
       var ch=el("span","ch",en.ch||"채널"); ch.contentEditable="true"; bind(ch,en,"ch");
       var del=el("button","del","삭제");
       del.onclick=function(){ if(confirm((en.label||"이 카드")+"를 지울까요?")){
-        day.entries.splice(ei,1); markDirty(); renderMenu(); renderView(); } };
+        day.entries.splice(ei,1); markDirty(); renderMenu(); renderView(); refreshKakao(); } };
       head.appendChild(num); head.appendChild(work); head.appendChild(ch); head.appendChild(del);
       card.appendChild(head);
       var bodyw=el("div","body"); var metaw=el("div","meta");
@@ -470,13 +491,14 @@
     add.onclick=function(){
       day.entries.push({label:"("+(day.entries.length+1)+")",work:"",ch:"",
         title:"",ko:"",yt:"",desc:"",file:"",link:"",script:""});
-      markDirty(); renderMenu(); renderView();
+      markDirty(); renderMenu(); renderView(); refreshKakao();
     };
     v.appendChild(add);
   }
 
   function bind(node,obj,key){
-    node.addEventListener("input",function(){ obj[key]=node.textContent; markDirty(); });
+    node.addEventListener("input",function(){ obj[key]=node.textContent; markDirty();
+      clearTimeout(bind._t); bind._t=setTimeout(refreshKakao,400); });
     node.addEventListener("keydown",function(e){
       if(e.key==="Enter"){ e.preventDefault(); node.blur(); }
     });
@@ -489,7 +511,7 @@
         {label:"(1)",work:"",ch:"",title:"",ko:"",yt:"",desc:"",file:"",link:"",script:""}]});
       markDirty();
     }
-    sel=t; renderMenu(); renderView();
+    sel=t; renderMenu(); renderView(); refreshKakao();
   };
 
   /* ---------- 저장 ---------- */
@@ -612,7 +634,7 @@
           sel=od.date;
         });
       }
-      markDirty(); renderMenu(); renderView();
+      markDirty(); renderMenu(); renderView(); refreshKakao();
       document.getElementById("m-imp").classList.remove("show");
       impText=""; document.getElementById("impbox").value="";
       document.getElementById("impname").textContent="고른 파일 없음";
@@ -665,8 +687,41 @@
   }
   function refreshKakao(){
     var day=state.days.find(function(x){ return x.date===sel; });
-    document.getElementById("ksub").textContent =
-      day ? (md(day.date)+" · "+day.entries.length+"편 제목+설명란") : "날짜를 고르면 준비돼요";
+    var body=document.getElementById("pbody");
+    document.getElementById("pdate").textContent = day ? md(day.date) : "";
+    body.innerHTML="";
+    if(!day || !day.entries.length){
+      var p=el("div","pempty","왼쪽에서 날짜를 고르면\n보낼 내용이 여기 보여요");
+      body.appendChild(p); return;
+    }
+    day.entries.forEach(function(e,i){
+      var b=el("div","bub");
+      var h=el("div","bh");
+      h.appendChild(el("span","bn",String(i+1)));
+      h.appendChild(el("span","bl",(e.label||e.work||"").trim()));
+      var cp=el("button","bcp","복사");
+      var txt=entryText(e);
+      cp.onclick=function(){ copyText(txt,cp,"복사"); };
+      h.appendChild(cp);
+      b.appendChild(h);
+      var t=(e.yt||e.title||"").trim();
+      var tt=el("div","tt", t||"(제목 없음)");
+      if(!t) tt.className="tt none";
+      b.appendChild(tt);
+      var noDesc=(e.ch||"").indexOf("오이시")>=0;
+      var db=noDesc?"":descBlock(e);
+      if(db){
+        b.appendChild(el("div","sep"));
+        b.appendChild(el("div","dd", db));
+      }
+      body.appendChild(b);
+    });
+  }
+  function entryText(e){
+    var t=(e.yt||e.title||"").trim();
+    var noDesc=(e.ch||"").indexOf("오이시")>=0;
+    var db=noDesc?"":descBlock(e);
+    return db ? (t+"\n\n"+db) : t;
   }
   function copyText(t,btn,label){
     function done(){ btn.textContent="복사됨!"; btn.classList.add("ok");
@@ -682,16 +737,6 @@
     if(!t){ toast("먼저 날짜를 골라줘요"); return; }
     copyText(t,this,"이 날짜 전체 복사");
   };
-  document.getElementById("kview").onclick=function(){
-    var t=kakaoText();
-    if(!t){ toast("먼저 날짜를 골라줘요"); return; }
-    document.getElementById("kprev").textContent=t;
-    document.getElementById("m-kk").classList.add("show");
-  };
-  document.getElementById("kk-x").onclick=function(){
-    document.getElementById("m-kk").classList.remove("show"); };
-  document.getElementById("kk-copy").onclick=function(){
-    copyText(document.getElementById("kprev").textContent,this,"복사"); };
 
   /* ---------- 폴더에서 업데이트 (딸깍 1번) ---------- */
   var dirHandle=null;
@@ -767,7 +812,7 @@
                 saved=nw; setDirty(false);
                 try{ localStorage.setItem("swaynote_data",nw); }catch(e){}
                 if(added) sel=added;
-                renderMenu(); renderView();
+                renderMenu(); renderView(); refreshKakao();
                 jobs.push(function(){ return putFile(FILE, JSON.stringify(state,null,1), "기록 업데이트"); });
                 changed.push("기록");
               }
