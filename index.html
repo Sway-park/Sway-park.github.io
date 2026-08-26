@@ -768,20 +768,25 @@
                 try{ localStorage.setItem("swaynote_data",nw); }catch(e){}
                 if(added) sel=added;
                 renderMenu(); renderView();
-                jobs.push(putFile(FILE, JSON.stringify(state,null,1), "기록 업데이트"));
+                jobs.push(function(){ return putFile(FILE, JSON.stringify(state,null,1), "기록 업데이트"); });
                 changed.push("기록");
               }
             }
           }catch(e){}
         }
-        if(html && /S-Way/.test(html) && html.trim()!==(liveHtml||"").trim()){
-          jobs.push(putFile("index.html", html, "홈페이지 업데이트"));
+        if(html && /S-Way/.test(html) && html.trim()!==(liveHtml||"").trim()){   // 기록 다음에 실행됨
+          jobs.push(function(){ return putFile("index.html", html, "홈페이지 업데이트"); });
           changed.push("홈페이지");
         }
         if(!jobs.length){ done("이미 최신이에요"); return; }
-        return Promise.all(jobs).then(function(rs){
-          var ok=rs.every(function(r){ return r&&r.ok; });
-          if(!ok){ done("업데이트 실패 — 열쇠나 인터넷을 확인해 줘요",5000); return; }
+        var rs=[];
+        function step(i){                      // 하나씩 순서대로 (동시 커밋 충돌 방지)
+          if(i>=jobs.length) return Promise.resolve(rs);
+          return jobs[i]().then(function(r){ rs.push(r); return step(i+1); });
+        }
+        return step(0).then(function(rs){
+          var bad=rs.filter(function(r){ return !(r&&r.ok); })[0];
+          if(bad){ done("업데이트 실패("+(bad&&bad.status||"?")+") — 잠시 후 다시 눌러줘요",5000); return; }
           if(changed.indexOf("홈페이지")>=0){
             done("업데이트 완료("+changed.join("·")+") — 잠시 후 새로고침돼요",6000);
             setTimeout(function(){ location.reload(true); },6000);
