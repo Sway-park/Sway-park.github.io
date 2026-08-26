@@ -26,7 +26,13 @@
   .brand .t{font-size:17px; font-weight:bold; letter-spacing:.3px}
   .brand .t b{color:var(--acc)}
   .brand .s{font-size:10px; color:var(--mut); letter-spacing:2px; margin-top:3px}
-  .newday{margin:14px 14px 2px; width:calc(100% - 28px);
+  .upbtn{margin:14px 14px 2px; width:calc(100% - 28px);
+    background:#1f3a2a; color:var(--acc); border:1px solid #2c5340; border-radius:10px;
+    padding:9px; font-size:13px; font-weight:bold; cursor:pointer; font-family:inherit}
+  .upbtn:hover{background:#2c5340}
+  .upbtn.busy{opacity:.6; cursor:default}
+  .uphint{margin:2px 14px 6px; font-size:10.5px; color:var(--dim); line-height:1.5}
+  .newday{margin:8px 14px 2px; width:calc(100% - 28px);
     background:var(--acc); color:#08130c; border:none; border-radius:10px;
     padding:9px; font-size:13px; font-weight:bold; cursor:pointer; font-family:inherit}
   .newday:hover{filter:brightness(1.08)}
@@ -90,7 +96,7 @@
     cursor:pointer; font-family:inherit; padding:4px}
   .del:hover{color:var(--pink)}
   .row{display:flex; gap:8px; align-items:flex-start; margin-bottom:8px}
-  .lab{flex:0 0 66px; color:var(--mut); font-size:11.5px; padding-top:8px; text-align:right}
+  .lab{flex:0 0 76px; color:var(--mut); font-size:11.5px; padding-top:8px; text-align:right}
   .val{flex:1; background:var(--field); border:1px solid var(--line); border-radius:8px;
     padding:7px 10px; font-size:13.5px; line-height:1.55; white-space:pre-wrap;
     word-break:break-all; outline:none; min-height:34px}
@@ -146,7 +152,7 @@
     aside{width:100%; flex:none; padding:10px 0 4px; border-right:none;
       border-bottom:1px solid var(--line)}
     main{padding:16px 12px 120px}
-    .lab{flex-basis:56px}
+    .lab{flex-basis:62px}
   }
 </style>
 </head>
@@ -157,6 +163,8 @@
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
     </div>
+    <button class="upbtn" id="upd">🔄 업데이트</button>
+    <div class="uphint" id="uphint"></div>
     <button class="newday" id="newday">＋ 오늘 기록 시작</button>
     <div class="toolrow">
       <button class="tool" id="imp">가져오기</button>
@@ -198,12 +206,13 @@
 
 <div class="modal" id="m-imp">
   <div class="box">
-    <h3>가져오기</h3>
-    <p>클로드가 만들어 준 <b>data.json</b> 파일을 고르거나, 코드를 붙여넣으세요.
-       넣은 뒤 아래 <b>[저장]</b>을 누르면 홈페이지에 올라가요.</p>
+    <h3>가져오기 · 업데이트</h3>
+    <p>클로드가 만들어 준 파일을 고르면 돼요 — 여러 개 한꺼번에 골라도 됩니다.<br>
+       · <b>data.json</b> = 기록 자료 (넣은 뒤 아래 [저장])<br>
+       · <b>index.html</b> = 홈페이지 기능 업데이트 (고르는 즉시 반영)</p>
     <div class="filerow">
       <label class="filebtn">📁 파일 고르기
-        <input type="file" id="impfile" accept=".json,application/json" hidden>
+        <input type="file" id="impfile" accept=".json,.html,application/json,text/html" multiple hidden>
       </label>
       <span id="impname" class="fname">고른 파일 없음</span>
     </div>
@@ -231,10 +240,11 @@
   try{ token=localStorage.getItem("swaynote_token")||""; }catch(e){}
 
   var FIELDS=[
-    ["title","제목 (일)","jp","일본어 최종 제목"],
+    ["title","영상 제목","jp","영상 안에 넣는 일본어 제목"],
     ["ko","해석 (한)","ko","한국어 해석"],
+    ["yt","유튜브 제목","","유튜브에 올릴 때 쓰는 제목"],
     ["desc","설명란","","작품명 + 줄바꿈 + 해시태그"],
-    ["file","파일명","","영상 파일명"],
+    ["file","파일명","","영상 파일 이름"],
     ["link","레퍼런스","","업로드 후 쇼츠 링크"]
   ];
 
@@ -405,7 +415,7 @@
     var add=el("button","addbtn","＋ 영상 추가");
     add.onclick=function(){
       day.entries.push({label:"("+(day.entries.length+1)+")",work:"",ch:"",
-        title:"",ko:"",desc:"",file:"",link:"",script:""});
+        title:"",ko:"",yt:"",desc:"",file:"",link:"",script:""});
       markDirty(); renderMenu(); renderView();
     };
     v.appendChild(add);
@@ -422,7 +432,7 @@
     var t=today();
     if(!state.days.find(function(d){return d.date===t;})){
       state.days.unshift({date:t,entries:[
-        {label:"(1)",work:"",ch:"",title:"",ko:"",desc:"",file:"",link:"",script:""}]});
+        {label:"(1)",work:"",ch:"",title:"",ko:"",yt:"",desc:"",file:"",link:"",script:""}]});
       markDirty();
     }
     sel=t; renderMenu(); renderView();
@@ -446,23 +456,28 @@
   document.getElementById("save").onclick=doSave;
 
   function b64(s){ return btoa(unescape(encodeURIComponent(s))); }
+  function apiFor(path){
+    return "https://api.github.com/repos/"+OWNER+"/"+REPO+"/contents/"+path;
+  }
+  function putFile(path, text, msg){
+    var url=apiFor(path);
+    return fetch(url,{headers:{Authorization:"Bearer "+token}})
+      .then(function(r){ return r.ok?r.json():null; })
+      .then(function(cur){
+        var payload={message:msg||"업데이트", content:b64(text), branch:BRANCH};
+        if(cur&&cur.sha) payload.sha=cur.sha;
+        return fetch(url,{method:"PUT",
+          headers:{Authorization:"Bearer "+token,"Content-Type":"application/json"},
+          body:JSON.stringify(payload)});
+      });
+  }
   function doSave(){
     var st=document.getElementById("savest");
     if(!token){ st.textContent="브라우저에만 저장됐어요 — [⚙ 저장설정]을 하면 진짜 저장돼요";
       try{ localStorage.setItem("swaynote_data",JSON.stringify(state)); }catch(e){}
       return; }
     st.textContent="저장 중…";
-    var body=JSON.stringify(state,null,1);
-    fetch(API,{headers:{Authorization:"Bearer "+token}})
-    .then(function(r){ return r.ok?r.json():null; })
-    .then(function(cur){
-      var payload={message:"업로드 노트 저장",
-        content:b64(body), branch:BRANCH};
-      if(cur&&cur.sha) payload.sha=cur.sha;
-      return fetch(API,{method:"PUT",
-        headers:{Authorization:"Bearer "+token,"Content-Type":"application/json"},
-        body:JSON.stringify(payload)});
-    })
+    putFile(FILE, JSON.stringify(state,null,1), "업로드 노트 저장")
     .then(function(r){
       if(r&&r.ok){ dirty=false; setDirty(false); saved=JSON.stringify(state);
         try{ localStorage.setItem("swaynote_data",saved); }catch(e){}
@@ -495,16 +510,37 @@
     document.getElementById("m-imp").classList.remove("show"); };
   var impText="";
   document.getElementById("impfile").onchange=function(ev){
-    var f=ev.target.files&&ev.target.files[0];
-    if(!f) return;
-    document.getElementById("impname").textContent=f.name;
-    var fr=new FileReader();
-    fr.onload=function(){ impText=String(fr.result||""); };
-    fr.readAsText(f,"utf-8");
+    var fs=ev.target.files ? Array.prototype.slice.call(ev.target.files) : [];
+    if(!fs.length) return;
+    document.getElementById("impname").textContent=fs.map(function(f){return f.name;}).join(", ");
+    fs.forEach(function(f){
+      var fr=new FileReader();
+      fr.onload=function(){
+        var txt=String(fr.result||"");
+        if(/\.html?$/i.test(f.name)) updateSite(txt);
+        else impText=txt;
+      };
+      fr.readAsText(f,"utf-8");
+    });
   };
+
+  function updateSite(html){
+    if(!token){ alert("먼저 [⚙ 저장설정]에서 열쇠를 등록해 주세요"); return; }
+    if(!/S-Way/.test(html)){ alert("업로드 노트 홈페이지 파일이 아닌 것 같아요"); return; }
+    if(dirty && !confirm("저장 안 한 수정이 있어요. 홈페이지를 먼저 업데이트할까요?\n(수정분은 이 브라우저에 남아 있어요)")) return;
+    toast("홈페이지 업데이트 중…", 8000);
+    putFile("index.html", html, "홈페이지 업데이트").then(function(r){
+      if(r&&r.ok){
+        toast("업데이트 완료 — 잠시 후 새로고침돼요", 6000);
+        setTimeout(function(){ location.reload(true); }, 6000);
+      } else if(r&&(r.status===401||r.status===403)){
+        toast("열쇠가 안 맞아요 — [⚙ 저장설정]에서 다시 넣어줘요", 5000);
+      } else toast("업데이트 실패 — 인터넷 확인 후 다시 해줘요", 5000);
+    })["catch"](function(){ toast("업데이트 실패 — 인터넷 확인 후 다시 해줘요", 5000); });
+  }
   document.getElementById("imp-ok").onclick=function(){
     var t=(document.getElementById("impbox").value.trim())||impText.trim();
-    if(!t){ alert("파일을 고르거나 코드를 붙여넣어 주세요"); return; }
+    if(!t){ document.getElementById("m-imp").classList.remove("show"); return; }
     var mode=document.querySelector('input[name="impmode"]:checked').value;
     try{
       var d=JSON.parse(t);
@@ -547,6 +583,107 @@
       document.body.appendChild(ta); ta.select();
       try{document.execCommand("copy"); done();}catch(e){} document.body.removeChild(ta); }
   }
+
+  /* ---------- 폴더에서 업데이트 (딸깍 1번) ---------- */
+  var dirHandle=null;
+  function idb(){
+    return new Promise(function(res,rej){
+      var q=indexedDB.open("swaynote",1);
+      q.onupgradeneeded=function(){ q.result.createObjectStore("kv"); };
+      q.onsuccess=function(){ res(q.result); };
+      q.onerror=function(){ rej(q.error); };
+    });
+  }
+  function idbGet(k){
+    return idb().then(function(db){ return new Promise(function(res){
+      var r=db.transaction("kv","readonly").objectStore("kv").get(k);
+      r.onsuccess=function(){ res(r.result||null); }; r.onerror=function(){ res(null); };
+    });})["catch"](function(){ return null; });
+  }
+  function idbSet(k,v){
+    return idb().then(function(db){ return new Promise(function(res){
+      var r=db.transaction("kv","readwrite").objectStore("kv").put(v,k);
+      r.onsuccess=function(){ res(true); }; r.onerror=function(){ res(false); };
+    });})["catch"](function(){ return false; });
+  }
+  function hint(t){ document.getElementById("uphint").textContent=t||""; }
+
+  idbGet("dir").then(function(h){
+    if(h){ dirHandle=h; hint("연결됨 · 눌러서 최신으로"); }
+    else hint("처음엔 업로드노트 폴더를 골라줘요");
+  });
+
+  function ensureDir(){
+    if(!window.showDirectoryPicker){
+      toast("이 브라우저는 폴더 연결을 지원 안 해요 — [가져오기]로 파일을 골라주세요",5000);
+      return Promise.reject("unsupported");
+    }
+    if(dirHandle){
+      return dirHandle.queryPermission({mode:"read"}).then(function(p){
+        if(p==="granted") return dirHandle;
+        return dirHandle.requestPermission({mode:"read"}).then(function(p2){
+          if(p2==="granted") return dirHandle;
+          throw "denied";
+        });
+      });
+    }
+    return window.showDirectoryPicker().then(function(h){
+      dirHandle=h; return idbSet("dir",h).then(function(){ hint("연결됨 · 눌러서 최신으로"); return h; });
+    });
+  }
+  function readIn(dir,name){
+    return dir.getFileHandle(name).then(function(fh){ return fh.getFile(); })
+      .then(function(f){ return f.text(); })["catch"](function(){ return null; });
+  }
+
+  document.getElementById("upd").onclick=function(){
+    var b=this;
+    if(b.classList.contains("busy")) return;
+    if(!token){ alert("먼저 [⚙ 저장설정]에서 열쇠를 등록해 주세요"); return; }
+    b.classList.add("busy"); b.textContent="확인 중…";
+    function done(msg,ms){ b.classList.remove("busy"); b.textContent="🔄 업데이트"; if(msg) toast(msg,ms||3500); }
+    ensureDir().then(function(dir){
+      return Promise.all([readIn(dir,"index.html"), readIn(dir,"data.json"),
+                          fetch("index.html?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.text();})["catch"](function(){return "";})])
+      .then(function(a){
+        var html=a[0], json=a[1], liveHtml=a[2], jobs=[], changed=[];
+        if(json){
+          try{
+            var d=JSON.parse(json);
+            if(d && d.days){
+              var cur=JSON.stringify(state), nw=JSON.stringify({days:d.days});
+              if(cur!==nw){
+                state={days:d.days};
+                sel=state.days.length?state.days[0].date:null;
+                saved=nw; setDirty(false);
+                try{ localStorage.setItem("swaynote_data",nw); }catch(e){}
+                renderMenu(); renderView();
+                jobs.push(putFile(FILE, JSON.stringify(state,null,1), "기록 업데이트"));
+                changed.push("기록");
+              }
+            }
+          }catch(e){}
+        }
+        if(html && /S-Way/.test(html) && html.trim()!==(liveHtml||"").trim()){
+          jobs.push(putFile("index.html", html, "홈페이지 업데이트"));
+          changed.push("홈페이지");
+        }
+        if(!jobs.length){ done("이미 최신이에요"); return; }
+        return Promise.all(jobs).then(function(rs){
+          var ok=rs.every(function(r){ return r&&r.ok; });
+          if(!ok){ done("업데이트 실패 — 열쇠나 인터넷을 확인해 줘요",5000); return; }
+          if(changed.indexOf("홈페이지")>=0){
+            done("업데이트 완료("+changed.join("·")+") — 잠시 후 새로고침돼요",6000);
+            setTimeout(function(){ location.reload(true); },6000);
+          } else done("업데이트 완료("+changed.join("·")+")");
+        });
+      });
+    })["catch"](function(e){
+      if(e==="denied") done("폴더 권한이 필요해요 — 다시 눌러서 허용해 주세요",5000);
+      else if(e==="unsupported") done("");
+      else done("");
+    });
+  };
 
   load();
 })();
