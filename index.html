@@ -291,6 +291,30 @@
     try{ var s=localStorage.getItem("swaynote_data");
       return s?JSON.parse(s):null; }catch(e){ return null; }
   }
+  /* 폴더 자료 병합 — 내가 쓴 내용은 덮지 않고 빈 칸만 채움 */
+  function mergeIn(days){
+    var KEYS=["work","ch","title","ko","yt","desc","file","link","script"];
+    var newest=null;
+    days.forEach(function(od){
+      var day=state.days.find(function(x){ return x.date===od.date; });
+      if(!day){ day={date:od.date, entries:[]}; state.days.push(day); }
+      (od.entries||[]).forEach(function(oe){
+        var ex=day.entries.find(function(e){
+          if(oe.label && e.label && e.label===oe.label) return true;
+          if(oe.title && e.title && e.title===oe.title) return true;
+          if(oe.file && e.file && e.file===oe.file) return true;
+          return false;
+        });
+        if(!ex){ day.entries.push(oe); newest=od.date; return; }
+        KEYS.forEach(function(k){
+          var v=(oe[k]||"").trim();
+          if(v && !(ex[k]||"").trim()){ ex[k]=oe[k]; newest=od.date; }
+        });
+      });
+    });
+    return newest;
+  }
+
   function merge(other){
     if(!other||!other.days) return;
     other.days.forEach(function(od){
@@ -651,12 +675,13 @@
           try{
             var d=JSON.parse(json);
             if(d && d.days){
-              var cur=JSON.stringify(state), nw=JSON.stringify({days:d.days});
-              if(cur!==nw){
-                state={days:d.days};
-                sel=state.days.length?state.days[0].date:null;
+              var before=JSON.stringify(state);
+              var added=mergeIn(d.days);
+              if(JSON.stringify(state)!==before){
+                var nw=JSON.stringify(state);
                 saved=nw; setDirty(false);
                 try{ localStorage.setItem("swaynote_data",nw); }catch(e){}
+                if(added) sel=added;
                 renderMenu(); renderView();
                 jobs.push(putFile(FILE, JSON.stringify(state,null,1), "기록 업데이트"));
                 changed.push("기록");
