@@ -44,7 +44,7 @@
     border:1px solid var(--line); border-radius:12px; padding:1px 7px}
   .dt.on .c{color:var(--acc); border-color:#2c5340}
 
-  main{flex:1; padding:22px 20px 110px; max-width:820px}
+  main{flex:1; padding:22px 20px 110px; max-width:1180px}
   .note{background:#233a17; border:1px solid #3c5c2a; border-radius:10px;
     padding:9px 13px; font-size:12.5px; margin-bottom:14px; color:#d9f0c8; display:none}
   .note.show{display:block}
@@ -61,6 +61,24 @@
 
   .card{background:var(--card); border:1px solid var(--line); border-radius:14px;
     padding:16px 16px 12px; margin-bottom:14px}
+  .body{display:flex; gap:14px; align-items:stretch}
+  .meta{flex:1 1 58%; min-width:0}
+  .scriptbox{flex:1 1 42%; display:flex; flex-direction:column; gap:6px; min-width:0}
+  .sc-head{display:flex; align-items:center; gap:8px}
+  .sc-head .t{font-size:11.5px; color:var(--mut)}
+  .sc-head .n{font-size:10.5px; color:var(--dim)}
+  .sc-head .acts{margin-left:auto; display:flex; gap:4px}
+  .sc-btn{background:#1f3a2a; color:var(--acc); border:1px solid #2c5340;
+    border-radius:7px; padding:4px 9px; font-size:11px; cursor:pointer; font-family:inherit}
+  .sc-btn:hover{background:#2c5340}
+  .sc{flex:1; background:var(--field); border:1px solid var(--line); border-radius:8px;
+    padding:9px 11px; font-size:12.5px; line-height:1.75; white-space:pre-wrap;
+    overflow:auto; max-height:340px; min-height:150px; outline:none; word-break:break-word}
+  .sc:focus{border-color:var(--acc); box-shadow:0 0 0 1px var(--acc)}
+  .sc:empty::before{content:'대본이 없어요 — 여기를 클릭해 붙여넣으면 저장돼요';
+    color:var(--dim)}
+  .sc .jp{color:var(--fg)}
+  @media (max-width:900px){ .body{flex-direction:column} .sc{max-height:260px} }
   .head{display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap}
   .num{background:var(--acc); color:#08130c; font-weight:bold; font-size:13px;
     border-radius:8px; padding:3px 10px; min-width:30px; text-align:center; outline:none}
@@ -94,7 +112,7 @@
   .savebar{position:fixed; left:0; right:0; bottom:0; display:none;
     background:rgba(11,23,16,.97); border-top:1px solid var(--line); padding:12px; z-index:5}
   .savebar.show{display:block}
-  .savebar .in{max-width:820px; margin:0 auto; display:flex; gap:12px; align-items:center}
+  .savebar .in{max-width:1180px; margin:0 auto; display:flex; gap:12px; align-items:center}
   .savebar .st{flex:1; font-size:13px; color:var(--yel)}
   .btn-main{background:var(--acc); color:#08130c; border:none; border-radius:10px;
     padding:10px 22px; font-size:14px; font-weight:bold; cursor:pointer; font-family:inherit}
@@ -195,7 +213,7 @@
   var FIELDS=[
     ["title","제목 (일)","jp","일본어 최종 제목"],
     ["ko","해석 (한)","ko","한국어 해석"],
-    ["desc","설명란","","유튜브 설명란 해시태그"],
+    ["desc","설명란","","작품명 + 줄바꿈 + 해시태그"],
     ["file","파일명","","영상 파일명"],
     ["link","레퍼런스","","업로드 후 쇼츠 링크"]
   ];
@@ -295,6 +313,8 @@
         day.entries.splice(ei,1); markDirty(); renderMenu(); renderView(); } };
       head.appendChild(num); head.appendChild(work); head.appendChild(ch); head.appendChild(del);
       card.appendChild(head);
+      var bodyw=el("div","body"); var metaw=el("div","meta");
+      card.appendChild(bodyw); bodyw.appendChild(metaw);
       FIELDS.forEach(function(f){
         var key=f[0], row=el("div","row");
         row.appendChild(el("div","lab",f[1]));
@@ -312,14 +332,50 @@
           side.appendChild(go);
         }
         row.appendChild(side);
-        card.appendChild(row);
+        metaw.appendChild(row);
       });
+
+      // ----- 대본 패널 -----
+      var sb=el("div","scriptbox");
+      var sh=el("div","sc-head");
+      sh.appendChild(el("span","t","대본"));
+      var cnt=el("span","n","");
+      sh.appendChild(cnt);
+      var acts=el("div","acts");
+      var bPaste=el("button","sc-btn","붙여넣기");
+      var bCopy=el("button","sc-btn","복사");
+      acts.appendChild(bPaste); acts.appendChild(bCopy);
+      sh.appendChild(acts);
+      sb.appendChild(sh);
+      var sc=el("div","sc", en.script||"");
+      sc.contentEditable="true";
+      function upCnt(){
+        var t=(en.script||"").trim();
+        cnt.textContent=t?(t.split(/\n+/).filter(function(x){return x.trim();}).length+"줄"):"";
+      }
+      upCnt();
+      sc.addEventListener("input",function(){ en.script=sc.innerText; upCnt(); markDirty(); });
+      bPaste.onclick=function(){
+        if(!navigator.clipboard||!navigator.clipboard.readText){
+          sc.focus(); bPaste.textContent="Ctrl+V"; 
+          setTimeout(function(){bPaste.textContent="붙여넣기";},1400); return; }
+        navigator.clipboard.readText().then(function(t){
+          if(!t) return;
+          en.script=t; sc.textContent=t; upCnt(); markDirty();
+          bPaste.textContent="넣었어요"; setTimeout(function(){bPaste.textContent="붙여넣기";},1200);
+        })["catch"](function(){ sc.focus(); bPaste.textContent="Ctrl+V";
+          setTimeout(function(){bPaste.textContent="붙여넣기";},1400); });
+      };
+      bCopy.onclick=function(){ copy((en.script||"").trim(), bCopy); };
+      sb.appendChild(sc);
+      bodyw.appendChild(sb);
+
       v.appendChild(card);
     });
     var add=el("button","addbtn","＋ 영상 추가");
     add.onclick=function(){
       day.entries.push({label:"("+(day.entries.length+1)+")",work:"",ch:"",
-        title:"",ko:"",desc:"",file:"",link:""});
+        title:"",ko:"",desc:"",file:"",link:"",script:""});
       markDirty(); renderMenu(); renderView();
     };
     v.appendChild(add);
@@ -336,7 +392,7 @@
     var t=today();
     if(!state.days.find(function(d){return d.date===t;})){
       state.days.unshift({date:t,entries:[
-        {label:"(1)",work:"",ch:"",title:"",ko:"",desc:"",file:"",link:""}]});
+        {label:"(1)",work:"",ch:"",title:"",ko:"",desc:"",file:"",link:"",script:""}]});
       markDirty();
     }
     sel=t; renderMenu(); renderView();
