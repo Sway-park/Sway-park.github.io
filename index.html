@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v22</div>
+      <div class="ver" id="ver">v23</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -443,11 +443,14 @@
       card.appendChild(head);
       var bodyw=el("div","body"); var metaw=el("div","meta");
       card.appendChild(bodyw); bodyw.appendChild(metaw);
+      var nodeByKey={};
       FIELDS.forEach(function(f){
         var key=f[0], row=el("div","row");
         row.appendChild(el("div","lab",f[1]));
         var val=el("div","val"+(f[2]?" "+f[2]:""), en[key]||"");
         val.contentEditable="true"; val.setAttribute("data-ph",f[3]); bind(val,en,key);
+        nodeByKey[key]=val;
+        if(key==="yt" && nodeByKey["title"]) nodeByKey["title"]._ytNode=val;
         row.appendChild(val);
         var side=el("div","side2");
         var cp=el("button","cp","복사");
@@ -532,7 +535,7 @@
   });
   document.addEventListener("keydown",function(e){ if(e.key==="Escape") closeSug(); });
 
-  var SUG_KEYS={label:1,work:1,ch:1,desc:1,folder:1,file:1};   // 제목·해석·유튜브제목·레퍼런스는 제외
+  var SUG_KEYS={label:1,work:1,ch:1,desc:1,file:1};   // 제목·해석·유튜브제목·폴더명·레퍼런스는 제외
   function sugList(key){
     if(key==="file"){                       // 파일명은 "작품명_" 접두만 제안
       var pre={};
@@ -583,7 +586,18 @@
   var MULTI={desc:1};        // 줄바꿈을 쓰는 칸
   function bind(node,obj,key){
     node.addEventListener("input",function(){
+      var prev=obj[key]||"";
       obj[key]=MULTI[key] ? node.innerText : node.textContent;
+      if(key==="title"){
+        // 유튜브 제목이 비었거나 아직 영상 제목을 따라오던 중이면 같이 갱신
+        var yt=(obj.yt||"").trim();
+        if(!yt || yt===prev.trim()){
+          obj.yt=obj[key];
+          if(node._ytNode){
+            node._ytNode.textContent=obj.yt;
+          }
+        }
+      }
       markDirty();
       clearTimeout(bind._t); bind._t=setTimeout(refreshKakao,400);
     });
