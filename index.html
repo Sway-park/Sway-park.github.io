@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v20</div>
+      <div class="ver" id="ver">v21</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -561,7 +561,9 @@
       sugBox.appendChild(it);
     });
     document.body.appendChild(sugBox);
-  }                       // 줄바꿈을 쓰는 칸
+  }
+
+  var MULTI={desc:1};        // 줄바꿈을 쓰는 칸
   function bind(node,obj,key){
     node.addEventListener("input",function(){
       obj[key]=MULTI[key] ? node.innerText : node.textContent;
