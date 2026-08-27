@@ -216,7 +216,7 @@
       <button class="tool" id="cfg">⚙ 저장설정</button>
     </div>
     <div id="menu"></div>
-    <div class="ver" id="ver">v15 · 폴더명</div>
+    <div class="ver" id="ver">v16 · 설명란 줄바꿈</div>
   </aside>
 
   <main>
@@ -300,7 +300,7 @@
     ["title","영상 제목","jp","영상 안에 넣는 일본어 제목"],
     ["ko","해석 (한)","ko","한국어 해석"],
     ["yt","유튜브 제목","","유튜브에 올릴 때 쓰는 제목"],
-    ["desc","설명란","","작품명 + 줄바꿈 + 해시태그"],
+    ["desc","설명란","","작품명 → Enter 두 번 → 해시태그"],
     ["folder","폴더명","","CapCut 프로젝트 폴더 이름"],
     ["file","파일명","","영상 파일 이름"],
     ["link","레퍼런스","","업로드 후 쇼츠 링크"]
@@ -503,11 +503,23 @@
     v.appendChild(add);
   }
 
+  var MULTI={desc:1};                       // 줄바꿈을 쓰는 칸
   function bind(node,obj,key){
-    node.addEventListener("input",function(){ obj[key]=node.textContent; markDirty();
-      clearTimeout(bind._t); bind._t=setTimeout(refreshKakao,400); });
+    node.addEventListener("input",function(){
+      obj[key]=MULTI[key] ? node.innerText : node.textContent;
+      markDirty();
+      clearTimeout(bind._t); bind._t=setTimeout(refreshKakao,400);
+    });
     node.addEventListener("keydown",function(e){
-      if(e.key==="Enter"){ e.preventDefault(); node.blur(); }
+      if(e.key!=="Enter") return;
+      if(!MULTI[key]){ e.preventDefault(); node.blur(); return; }
+      // 설명란: 줄바꿈 허용 (Ctrl+Enter 로 편집 끝내기)
+      if(e.ctrlKey || e.metaKey){ e.preventDefault(); node.blur(); }
+    });
+    node.addEventListener("paste",function(e){    // 서식 없이 붙여넣기
+      e.preventDefault();
+      var t=(e.clipboardData||window.clipboardData).getData("text/plain");
+      document.execCommand("insertText", false, MULTI[key] ? t : t.replace(/\s*\n\s*/g," "));
     });
   }
 
