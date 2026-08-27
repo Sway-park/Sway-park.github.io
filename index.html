@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v21</div>
+      <div class="ver" id="ver">v22</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -532,10 +532,27 @@
   });
   document.addEventListener("keydown",function(e){ if(e.key==="Escape") closeSug(); });
 
+  var SUG_KEYS={label:1,work:1,ch:1,desc:1,folder:1,file:1};   // 제목·해석·유튜브제목·레퍼런스는 제외
+  function sugList(key){
+    if(key==="file"){                       // 파일명은 "작품명_" 접두만 제안
+      var pre={};
+      state.days.forEach(function(day){ day.entries.forEach(function(e){
+        var f=(e.file||"").trim(); var i=f.indexOf("_");
+        if(i>0) pre[f.slice(0,i)+"_"]=(pre[f.slice(0,i)+"_"]||0)+1;
+      });});
+      return Object.keys(pre).sort(function(a,b){ return pre[b]-pre[a]; });
+    }
+    if(key==="desc"){                       // 설명란은 해시태그까지 붙은 것만
+      var full=pastValues(key).filter(function(v){ return v.indexOf("#")>=0; });
+      return full.length ? full : pastValues(key);
+    }
+    return pastValues(key);
+  }
   function openSug(node,obj,key){
     closeSug();
+    if(!SUG_KEYS[key]) return;
     var cur=(MULTI[key]?node.innerText:node.textContent).trim();
-    var all=pastValues(key).filter(function(v){ return v!==cur; });
+    var all=sugList(key).filter(function(v){ return v!==cur; });
     var list=all.filter(function(v){
       return !cur || v.toLowerCase().indexOf(cur.toLowerCase())>=0;
     });
@@ -550,7 +567,7 @@
     var head=el("div","sug-h","지난 기록 "+list.length+"개 · 눌러서 넣기 (Esc 닫기)");
     sugBox.appendChild(head);
     list.forEach(function(v){
-      var it=el("div","sug-i", v.length>90 ? v.slice(0,90)+"…" : v);
+      var it=el("div","sug-i", v.length>160 ? v.slice(0,160)+"…" : v);
       it.title=v;
       it.addEventListener("mousedown",function(ev){
         ev.preventDefault();
