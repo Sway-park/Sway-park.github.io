@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v18</div>
+      <div class="ver" id="ver">v19</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -535,17 +535,19 @@
   function openSug(node,obj,key){
     closeSug();
     var cur=(MULTI[key]?node.innerText:node.textContent).trim();
-    var list=pastValues(key).filter(function(v){
-      if(v===cur) return false;
+    var all=pastValues(key).filter(function(v){ return v!==cur; });
+    var list=all.filter(function(v){
       return !cur || v.toLowerCase().indexOf(cur.toLowerCase())>=0;
-    }).slice(0,10);
+    });
+    if(!list.length) list=all;              // 걸러서 없으면 전체를 보여줌
+    list=list.slice(0,12);
     if(!list.length) return;
     var r=node.getBoundingClientRect();
     sugBox=el("div","sug");
     sugBox.style.left=(r.left+window.scrollX)+"px";
     sugBox.style.top=(r.bottom+window.scrollY+4)+"px";
     sugBox.style.minWidth=Math.min(r.width,520)+"px";
-    var head=el("div","sug-h","지난 기록에서 고르기");
+    var head=el("div","sug-h","지난 기록 "+list.length+"개 · 눌러서 넣기 (Esc 닫기)");
     sugBox.appendChild(head);
     list.forEach(function(v){
       var it=el("div","sug-i", v.length>90 ? v.slice(0,90)+"…" : v);
@@ -573,6 +575,7 @@
       if(e.ctrlKey || e.metaKey){ e.preventDefault(); node.blur(); }
     });
     node.addEventListener("focus",function(){ openSug(node,obj,key); });
+    node.addEventListener("click",function(){ openSug(node,obj,key); });
     node.addEventListener("input",function(){
       clearTimeout(bind._s); bind._s=setTimeout(function(){ openSug(node,obj,key); },200);
     });
