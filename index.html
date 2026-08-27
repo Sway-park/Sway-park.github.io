@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v19</div>
+      <div class="ver" id="ver">v20</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -695,8 +695,19 @@
     toast("홈페이지 업데이트 중…", 8000);
     putFile("index.html", html, "홈페이지 업데이트").then(function(r){
       if(r&&r.ok){
-        toast("업데이트 완료 — 잠시 후 새로고침돼요", 6000);
-        setTimeout(function(){ location.reload(true); }, 6000);
+        toast("올렸어요 — 깃허브가 반영할 때까지 기다리는 중…", 9000);
+        var want=(html.match(/id="ver">([^<]*)</)||[])[1]||null, n=0;
+        (function poll(){
+          n++;
+          fetch("index.html?bust="+Date.now(),{cache:"no-store"})
+            .then(function(r2){ return r2.text(); })
+            .then(function(t){
+              var ready = want ? (t.indexOf('id="ver">'+want+'<')>=0) : (t.trim()===html.trim());
+              if(ready){ hardReload(); return; }
+              if(n>30){ toast("반영이 늦어요 — 1~2분 뒤 새로고침해 주세요",6000); return; }
+              setTimeout(poll,4000);
+            })["catch"](function(){ if(n<=30) setTimeout(poll,4000); });
+        })();
       } else if(r&&(r.status===401||r.status===403)){
         toast("열쇠가 안 맞아요 — [⚙ 저장설정]에서 다시 넣어줘요", 5000);
       } else toast("업데이트 실패 — 인터넷 확인 후 다시 해줘요", 5000);
@@ -848,6 +859,9 @@
       r.onsuccess=function(){ res(true); }; r.onerror=function(){ res(false); };
     });})["catch"](function(){ return false; });
   }
+  function hardReload(){                     // 캐시 무시하고 새로 받기
+    location.replace(location.pathname+"?v="+Date.now());
+  }
   function hint(t){ document.getElementById("uphint").textContent=t||""; }
 
   idbGet("dir").then(function(h){
@@ -920,10 +934,27 @@
         return step(0).then(function(rs){
           var bad=rs.filter(function(r){ return !(r&&r.ok); })[0];
           if(bad){ done("업데이트 실패("+(bad&&bad.status||"?")+") — 잠시 후 다시 눌러줘요",5000); return; }
-          if(changed.indexOf("홈페이지")>=0){
-            done("업데이트 완료("+changed.join("·")+") — 잠시 후 새로고침돼요",6000);
-            setTimeout(function(){ location.reload(true); },6000);
-          } else done("업데이트 완료("+changed.join("·")+")");
+          if(changed.indexOf("홈페이지")<0){ done("업데이트 완료("+changed.join("·")+")"); return; }
+          // 홈페이지 파일이 실제로 배포될 때까지 기다렸다가 이동 (깃허브는 30초~2분 걸림)
+          var want=(html.match(/id="ver">([^<]*)</)||[])[1]||null;
+          toast("올렸어요 — 깃허브가 반영할 때까지 기다리는 중…", 9000);
+          var n=0;
+          (function poll(){
+            n++;
+            b.textContent="반영 중 "+(n*4)+"초";
+            fetch("index.html?bust="+Date.now(),{cache:"no-store"})
+              .then(function(r){ return r.text(); })
+              .then(function(t){
+                var ready = want ? (t.indexOf('id="ver">'+want+'<')>=0)
+                                 : (t.trim()===html.trim());
+                if(ready){ hardReload(); return; }
+                if(n>30){ done("반영이 늦어요 — 1~2분 뒤 새로고침해 주세요",6000); return; }
+                setTimeout(poll,4000);
+              })["catch"](function(){
+                if(n>30){ done("확인 실패 — 잠시 후 새로고침해 주세요",5000); return; }
+                setTimeout(poll,4000);
+              });
+          })();
         });
       });
     })["catch"](function(e){
@@ -935,19 +966,17 @@
 
   /* 새 버전이 올라오면 스스로 새로고침 (캐시 때문에 옛 화면이 남는 것 방지) */
   (function watchVersion(){
-    var mine=null;
-    function size(){ 
-      return fetch("index.html?bust="+Date.now(),{cache:"no-store"})
-        .then(function(r){ return r.text(); })
-        .then(function(t){ return t.length; })["catch"](function(){ return null; });
-    }
-    size().then(function(n){ mine=n; });
+    var mine=(document.getElementById("ver")||{}).textContent||"";
+    if(!mine) return;
     setInterval(function(){
       if(dirty) return;                       // 저장 안 한 수정이 있으면 건드리지 않음
-      size().then(function(n){
-        if(mine && n && n!==mine){ mine=n; location.reload(true); }
-      });
-    }, 120000);
+      fetch("index.html?bust="+Date.now(),{cache:"no-store"})
+        .then(function(r){ return r.text(); })
+        .then(function(t){
+          var m=t.match(/id="ver">([^<]*)</);
+          if(m && m[1] && m[1]!==mine) hardReload();
+        })["catch"](function(){});
+    }, 90000);
   })();
 
   load();
