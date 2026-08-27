@@ -169,6 +169,13 @@
   .btn-sub{background:none; color:var(--mut); border:1px solid var(--line);
     border-radius:10px; padding:10px 16px; font-size:13px; cursor:pointer; font-family:inherit}
 
+  .sug{position:absolute; z-index:20; background:var(--card);
+    border:1px solid #2c5340; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,.5);
+    max-height:280px; overflow:auto; max-width:560px; padding:4px}
+  .sug-h{font-size:10px; color:var(--dim); padding:5px 9px 6px; letter-spacing:.3px}
+  .sug-i{font-size:12.5px; color:var(--fg); padding:7px 9px; border-radius:7px;
+    cursor:pointer; white-space:pre-wrap; line-height:1.5; word-break:break-word}
+  .sug-i:hover{background:#1f3a2a; color:var(--acc)}
   .modal{display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:9;
     align-items:center; justify-content:center; padding:16px}
   .modal.show{display:flex}
@@ -205,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v16 · 설명란 줄바꿈</div>
+      <div class="ver" id="ver">v18</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -495,14 +502,64 @@
     });
     var add=el("button","addbtn","＋ 영상 추가");
     add.onclick=function(){
-      day.entries.push({label:"("+(day.entries.length+1)+")",work:"",ch:"",
-        title:"",ko:"",yt:"",desc:"",folder:"",file:"",link:"",script:""});
+      day.entries.push(blankEntry(day.entries.length+1,""));
       markDirty(); renderMenu(); renderView(); refreshKakao();
     };
     v.appendChild(add);
   }
 
-  var MULTI={desc:1};                       // 줄바꿈을 쓰는 칸
+  /* 지난 입력 모으기 — 빈도 높은 순, 같으면 최근 순 */
+  function pastValues(key){
+    var cnt={}, seen={}, order=0;
+    state.days.forEach(function(day){
+      day.entries.forEach(function(e){
+        var v=(e[key]||"").trim();
+        if(!v) return;
+        if(!cnt[v]){ cnt[v]={n:0,at:order}; }
+        cnt[v].n++; order++;
+        cnt[v].at=Math.max(cnt[v].at,order);
+      });
+    });
+    return Object.keys(cnt).sort(function(a,b){
+      if(cnt[b].n!==cnt[a].n) return cnt[b].n-cnt[a].n;
+      return cnt[b].at-cnt[a].at;
+    });
+  }
+  var sugBox=null;
+  function closeSug(){ if(sugBox){ sugBox.remove(); sugBox=null; } }
+  document.addEventListener("mousedown",function(e){
+    if(sugBox && !sugBox.contains(e.target)) closeSug();
+  });
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape") closeSug(); });
+
+  function openSug(node,obj,key){
+    closeSug();
+    var cur=(MULTI[key]?node.innerText:node.textContent).trim();
+    var list=pastValues(key).filter(function(v){
+      if(v===cur) return false;
+      return !cur || v.toLowerCase().indexOf(cur.toLowerCase())>=0;
+    }).slice(0,10);
+    if(!list.length) return;
+    var r=node.getBoundingClientRect();
+    sugBox=el("div","sug");
+    sugBox.style.left=(r.left+window.scrollX)+"px";
+    sugBox.style.top=(r.bottom+window.scrollY+4)+"px";
+    sugBox.style.minWidth=Math.min(r.width,520)+"px";
+    var head=el("div","sug-h","지난 기록에서 고르기");
+    sugBox.appendChild(head);
+    list.forEach(function(v){
+      var it=el("div","sug-i", v.length>90 ? v.slice(0,90)+"…" : v);
+      it.title=v;
+      it.addEventListener("mousedown",function(ev){
+        ev.preventDefault();
+        obj[key]=v;
+        if(MULTI[key]) node.innerText=v; else node.textContent=v;
+        markDirty(); refreshKakao(); closeSug();
+      });
+      sugBox.appendChild(it);
+    });
+    document.body.appendChild(sugBox);
+  }                       // 줄바꿈을 쓰는 칸
   function bind(node,obj,key){
     node.addEventListener("input",function(){
       obj[key]=MULTI[key] ? node.innerText : node.textContent;
@@ -515,6 +572,11 @@
       // 설명란: 줄바꿈 허용 (Ctrl+Enter 로 편집 끝내기)
       if(e.ctrlKey || e.metaKey){ e.preventDefault(); node.blur(); }
     });
+    node.addEventListener("focus",function(){ openSug(node,obj,key); });
+    node.addEventListener("input",function(){
+      clearTimeout(bind._s); bind._s=setTimeout(function(){ openSug(node,obj,key); },200);
+    });
+    node.addEventListener("blur",function(){ setTimeout(closeSug,150); });
     node.addEventListener("paste",function(e){    // 서식 없이 붙여넣기
       e.preventDefault();
       var t=(e.clipboardData||window.clipboardData).getData("text/plain");
@@ -522,11 +584,16 @@
     });
   }
 
+  var DAY_PRESET=["치라미","치라미","치라미","오이시","오이시"];
+  function blankEntry(n,ch){
+    return {label:"("+n+")",work:"",ch:ch||"",title:"",ko:"",yt:"",
+            desc:"",folder:"",file:"",link:"",script:""};
+  }
   document.getElementById("newday").onclick=function(){
     var t=today();
     if(!state.days.find(function(d){return d.date===t;})){
-      state.days.unshift({date:t,entries:[
-        {label:"(1)",work:"",ch:"",title:"",ko:"",yt:"",desc:"",folder:"",file:"",link:"",script:""}]});
+      var es=DAY_PRESET.map(function(ch,i){ return blankEntry(i+1,ch); });
+      state.days.unshift({date:t,entries:es});
       markDirty();
     }
     sel=t; renderMenu(); renderView(); refreshKakao();
