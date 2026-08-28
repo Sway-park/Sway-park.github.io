@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v23</div>
+      <div class="ver" id="ver">v24</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -810,8 +810,7 @@
       out.push("━━━ "+n+". "+((e.label||"").trim()||(e.work||""))+" ━━━");
       out.push("[제목]");
       out.push((e.yt||e.title||"").trim()||"(제목 없음)");
-      var noDesc = (e.ch||"").indexOf("오이시")>=0;   // 오이시는 설명란 미사용
-      var db=noDesc?"":descBlock(e);
+      var db=descBlock(e);            // 설명란은 적혀 있으면 채널과 무관하게 표시
       if(db){ out.push(""); out.push("[설명란]"); out.push(db); }
       out.push("");
     });
@@ -840,8 +839,7 @@
       var tt=el("div","tt", t||"(제목 없음)");
       if(!t) tt.className="tt none";
       b.appendChild(tt);
-      var noDesc=(e.ch||"").indexOf("오이시")>=0;
-      var db=noDesc?"":descBlock(e);
+      var db=descBlock(e);
       if(db){
         b.appendChild(el("div","sep"));
         b.appendChild(el("div","dd", db));
@@ -851,8 +849,7 @@
   }
   function entryText(e){
     var t=(e.yt||e.title||"").trim();
-    var noDesc=(e.ch||"").indexOf("오이시")>=0;
-    var db=noDesc?"":descBlock(e);
+    var db=descBlock(e);
     return db ? (t+"\n\n"+db) : t;
   }
   function copyText(t,btn,label){
