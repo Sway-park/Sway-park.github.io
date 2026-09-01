@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v29</div>
+      <div class="ver" id="ver">v30</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -357,7 +357,9 @@
       return s?JSON.parse(s):null; }catch(e){ return null; }
   }
   /* 폴더 자료 병합 — 내가 쓴 내용은 덮지 않고 빈 칸만 채움 */
+  var mergeSkipped=0;
   function mergeIn(days){
+    mergeSkipped=0;
     var KEYS=["work","ch","title","ko","yt","desc","folder","file","link","script"];
     var newest=null;
     days.forEach(function(od){
@@ -383,7 +385,8 @@
         }
         if(!ex){
           if(fresh){ day.entries.push(oe); newest=od.date; }   // 카드가 하나도 없는 날에만 새로 깐다
-          return;                                             // 그 외에는 절대 밑에 안 만든다
+          else mergeSkipped++;                                // 그 외에는 절대 밑에 안 만든다 (건너뛴 개수만 알림)
+          return;
         }
         taken.push(ex);
         KEYS.forEach(function(k){
@@ -990,7 +993,12 @@
         return step(0).then(function(rs){
           var bad=rs.filter(function(r){ return !(r&&r.ok); })[0];
           if(bad){ done("업데이트 실패("+(bad&&bad.status||"?")+") — 잠시 후 다시 눌러줘요",5000); return; }
-          if(changed.indexOf("홈페이지")<0){ done("업데이트 완료("+changed.join("·")+")"); return; }
+          if(changed.indexOf("홈페이지")<0){
+            done("업데이트 완료("+changed.join("·")+")"
+                 +(mergeSkipped?" · 넣을 카드가 없어서 "+mergeSkipped+"개 건너뜀":""),
+                 mergeSkipped?7000:3500);
+            return;
+          }
           // 홈페이지 파일이 실제로 배포될 때까지 기다렸다가 이동 (깃허브는 30초~2분 걸림)
           var want=(html.match(/id="ver">([^<]*)</)||[])[1]||null;
           toast("올렸어요 — 깃허브가 반영할 때까지 기다리는 중…", 9000);
