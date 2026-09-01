@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v25</div>
+      <div class="ver" id="ver">v26</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -363,20 +363,25 @@
     days.forEach(function(od){
       var day=state.days.find(function(x){ return x.date===od.date; });
       if(!day){ day={date:od.date, entries:[]}; state.days.push(day); }
-      (od.entries||[]).forEach(function(oe){
-        var ex=day.entries.find(function(e){
+      var taken=[];                                 // 이미 짝지은 카드(한 카드에 두 번 안 들어가게)
+      function free(e){ return e && taken.indexOf(e)<0; }
+      (od.entries||[]).forEach(function(oe,oi){
+        var ex=day.entries.find(function(e){        // ① 폴더명·제목 등으로 짝 찾기
+          if(!free(e)) return false;
           if(oe.folder && e.folder && e.folder===oe.folder) return true;
           if(oe.label && e.label && e.label===oe.label) return true;
           if(oe.title && e.title && e.title===oe.title) return true;
           if(oe.file && e.file && e.file===oe.file) return true;
           return false;
         });
-        if(!ex){                                   // 빈 카드([＋오늘 기록 시작]로 깔린 것)가 있으면 거기 채움
+        if(!ex){                                    // ② 빈 카드가 있으면 거기
           ex=day.entries.find(function(e){
-            return !KEYS.some(function(k){ return (e[k]||"").trim(); });
+            return free(e) && !KEYS.some(function(k){ return (e[k]||"").trim(); });
           });
         }
+        if(!ex && free(day.entries[oi])) ex=day.entries[oi];   // ③ 같은 순번 카드에 (빈 칸만 채움)
         if(!ex){ day.entries.push(oe); newest=od.date; return; }
+        taken.push(ex);
         KEYS.forEach(function(k){
           var v=(oe[k]||"").trim();
           if(v && !(ex[k]||"").trim()){ ex[k]=oe[k]; newest=od.date; }
