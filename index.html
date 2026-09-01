@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v26</div>
+      <div class="ver" id="ver">v27</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -363,6 +363,7 @@
     days.forEach(function(od){
       var day=state.days.find(function(x){ return x.date===od.date; });
       if(!day){ day={date:od.date, entries:[]}; state.days.push(day); }
+      var fresh=(day.entries.length===0);           // 카드가 하나도 없는 날에만 새로 만든다
       var taken=[];                                 // 이미 짝지은 카드(한 카드에 두 번 안 들어가게)
       function free(e){ return e && taken.indexOf(e)<0; }
       (od.entries||[]).forEach(function(oe,oi){
@@ -380,7 +381,10 @@
           });
         }
         if(!ex && free(day.entries[oi])) ex=day.entries[oi];   // ③ 같은 순번 카드에 (빈 칸만 채움)
-        if(!ex){ day.entries.push(oe); newest=od.date; return; }
+        if(!ex){
+          if(fresh){ day.entries.push(oe); newest=od.date; }   // 빈 날이면 그대로 깔고
+          return;                                             // 카드가 있는 날엔 절대 밑에 안 만든다
+        }
         taken.push(ex);
         KEYS.forEach(function(k){
           var v=(oe[k]||"").trim();
