@@ -212,10 +212,11 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v24</div>
+      <div class="ver" id="ver">v25</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
+    <div class="uphint" style="margin-top:-4px"><a href="#" id="redir" style="color:var(--dim);text-decoration:underline">폴더 다시 고르기</a></div>
     <button class="newday" id="newday">＋ 오늘 기록 시작</button>
     <div class="toolrow">
       <button class="tool" id="imp">가져오기</button>
@@ -364,11 +365,17 @@
       if(!day){ day={date:od.date, entries:[]}; state.days.push(day); }
       (od.entries||[]).forEach(function(oe){
         var ex=day.entries.find(function(e){
+          if(oe.folder && e.folder && e.folder===oe.folder) return true;
           if(oe.label && e.label && e.label===oe.label) return true;
           if(oe.title && e.title && e.title===oe.title) return true;
           if(oe.file && e.file && e.file===oe.file) return true;
           return false;
         });
+        if(!ex){                                   // 빈 카드([＋오늘 기록 시작]로 깔린 것)가 있으면 거기 채움
+          ex=day.entries.find(function(e){
+            return !KEYS.some(function(k){ return (e[k]||"").trim(); });
+          });
+        }
         if(!ex){ day.entries.push(oe); newest=od.date; return; }
         KEYS.forEach(function(k){
           var v=(oe[k]||"").trim();
@@ -921,6 +928,16 @@
     return dir.getFileHandle(name).then(function(fh){ return fh.getFile(); })
       .then(function(f){ return f.text(); })["catch"](function(){ return null; });
   }
+
+  document.getElementById("redir").onclick=function(e){
+    e.preventDefault();
+    if(!window.showDirectoryPicker){ toast("이 브라우저는 폴더 연결을 지원 안 해요",4000); return; }
+    window.showDirectoryPicker().then(function(h){
+      dirHandle=h; return idbSet("dir",h).then(function(){
+        hint("연결됨 · 눌러서 최신으로"); toast("폴더를 바꿨어요 — 이제 🔄 업데이트를 눌러줘요",4500);
+      });
+    })["catch"](function(){});
+  };
 
   document.getElementById("upd").onclick=function(){
     var b=this;
