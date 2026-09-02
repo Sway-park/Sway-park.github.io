@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v30</div>
+      <div class="ver" id="ver">v31</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -333,7 +333,17 @@
         if(!r.ok) throw 0; return r.json(); });
     }).then(function(d){
       state=d&&d.days?d:{days:[]};
-      if(localDirty()) merge(loadLocal());   // 저장 안 한 수정분만 합침
+      var L=loadLocal(), fresh=(Date.now()-localSavedAt())<6*3600*1000;
+      // 깃허브 페이지 반영이 늦어 옛 data.json이 올 수 있음 →
+      // 최근에 이 브라우저에서 저장/수정한 내용이 있으면 그쪽을 기준으로 삼는다
+      if(L && L.days && (localDirty() || (fresh && JSON.stringify(L)!==JSON.stringify(state)))){
+        var server=state; state=L;
+        (server.days||[]).forEach(function(sd){          // 다른 데서 생긴 날짜만 보태기
+          if(!state.days.some(function(x){ return x.date===sd.date; })) state.days.push(sd);
+        });
+        state.days.sort(function(a,b){ return a.date<b.date?1:-1; });
+        if(!localDirty()) toast("이 브라우저의 최신 기록으로 표시 중 (깃허브 반영 대기)", 4000);
+      }
       after();
     }).catch(function(){
       state=loadLocal()||{days:[]};
@@ -351,6 +361,13 @@
   }
   function setDirty(v){
     try{ localStorage.setItem("swaynote_dirty", v?"1":"0"); }catch(e){}
+  }
+  function localSavedAt(){
+    try{ return +(localStorage.getItem("swaynote_savedAt")||0); }catch(e){ return 0; }
+  }
+  function stashLocal(txt){
+    try{ localStorage.setItem("swaynote_data",txt);
+         localStorage.setItem("swaynote_savedAt",String(Date.now())); }catch(e){}
   }
   function loadLocal(){
     try{ var s=localStorage.getItem("swaynote_data");
@@ -656,7 +673,7 @@
 
   /* ---------- 저장 ---------- */
   function markDirty(){ dirty=true; setDirty(true);
-    try{ localStorage.setItem("swaynote_data",JSON.stringify(state)); }catch(e){}
+    stashLocal(JSON.stringify(state));
     document.getElementById("savebar").classList.add("show");
     document.getElementById("savest").textContent=
       token?"수정한 내용이 있어요 — 저장을 눌러야 남아요"
@@ -664,7 +681,7 @@
   }
   document.getElementById("undo").onclick=function(){
     state=JSON.parse(saved); dirty=false; setDirty(false);
-    try{ localStorage.setItem("swaynote_data",saved); }catch(e){}
+    stashLocal(saved);
     sel=state.days.length?state.days[0].date:null;
     document.getElementById("savebar").classList.remove("show");
     renderMenu(); renderView();
@@ -690,13 +707,13 @@
   function doSave(){
     var st=document.getElementById("savest");
     if(!token){ st.textContent="브라우저에만 저장됐어요 — [⚙ 저장설정]을 하면 진짜 저장돼요";
-      try{ localStorage.setItem("swaynote_data",JSON.stringify(state)); }catch(e){}
+      stashLocal(JSON.stringify(state));
       return; }
     st.textContent="저장 중…";
     putFile(FILE, JSON.stringify(state,null,1), "업로드 노트 저장")
     .then(function(r){
       if(r&&r.ok){ dirty=false; setDirty(false); saved=JSON.stringify(state);
-        try{ localStorage.setItem("swaynote_data",saved); }catch(e){}
+        stashLocal(saved);
         document.getElementById("savebar").classList.remove("show");
         toast("저장 완료 — 어디서 열어도 이 내용이 보여요"); }
       else if(r&&r.status===401||r&&r.status===403){ st.textContent="열쇠가 안 맞아요 — [⚙ 저장설정]에서 다시 붙여넣어줘요"; }
@@ -971,7 +988,7 @@
               if(JSON.stringify(state)!==before){
                 var nw=JSON.stringify(state);
                 saved=nw; setDirty(false);
-                try{ localStorage.setItem("swaynote_data",nw); }catch(e){}
+                stashLocal(nw);
                 if(added) sel=added;
                 renderMenu(); renderView(); refreshKakao();
                 jobs.push(function(){ return putFile(FILE, JSON.stringify(state,null,1), "기록 업데이트"); });
