@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v31</div>
+      <div class="ver" id="ver">v32</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -462,7 +462,7 @@
     };
     dh.appendChild(dd);
     v.appendChild(dh);
-    v.appendChild(el("div","hint","글자를 클릭하면 바로 수정돼요 · 수정 후 아래 [저장]"));
+    v.appendChild(el("div","hint","글자를 클릭하면 바로 수정돼요 · 제목을 넣으면 작품명·채널·설명란이 저절로 채워져요 · 수정 후 아래 [저장]"));
 
     day.entries.forEach(function(en,ei){
       var card=el("div","card");
@@ -475,6 +475,7 @@
       var del=el("button","del","삭제");
       del.onclick=function(){ if(confirm((en.label||"이 카드")+"를 지울까요?")){
         day.entries.splice(ei,1); markDirty(); renderMenu(); renderView(); refreshKakao(); } };
+      num._workNode=work; num._chNode=ch;     // 제목에서 자동 채울 때 쓸 연결
       head.appendChild(num); head.appendChild(work); head.appendChild(ch); head.appendChild(del);
       card.appendChild(head);
       var bodyw=el("div","body"); var metaw=el("div","meta");
@@ -487,6 +488,7 @@
         val.contentEditable="true"; val.setAttribute("data-ph",f[3]); bind(val,en,key);
         nodeByKey[key]=val;
         if(key==="yt" && nodeByKey["title"]) nodeByKey["title"]._ytNode=val;
+        if(key==="desc") num._descNode=val;
         row.appendChild(val);
         var side=el("div","side2");
         var cp=el("button","cp","복사");
@@ -619,6 +621,29 @@
     document.body.appendChild(sugBox);
   }
 
+  /* ── 제목 → 작품명·채널·설명란 자동 채우기 ─────────────────────────
+     제목에서 끝의 (숫자)를 뗀 이름으로, 같은 이름을 쓴 지난 카드를 찾아
+     작품명·채널·설명란을 가져온다. 표를 따로 관리할 필요가 없다.       */
+  function baseLabel(s){
+    return (s||"").replace(/[（(]\s*\d+\s*[)）]\s*$/,"").replace(/\s+/g," ").trim();
+  }
+  function lookupByLabel(name){
+    var key=baseLabel(name); if(!key) return null;
+    var hit=null;                                  // state.days 는 최신순이라 먼저 걸린 게 최근 것
+    state.days.forEach(function(day){
+      day.entries.forEach(function(e){
+        if(baseLabel(e.label)!==key) return;
+        var w=(e.work||"").trim(), c=(e.ch||"").trim(), d=(e.desc||"").trim();
+        if(!w && !d && !c) return;
+        if(!hit) hit={work:"",ch:"",desc:""};
+        if(w && !hit.work) hit.work=w;
+        if(c && !hit.ch)   hit.ch=c;
+        if(d && !hit.desc) hit.desc=d;
+      });
+    });
+    return hit;
+  }
+
   var MULTI={desc:1};        // 줄바꿈을 쓰는 칸
   function bind(node,obj,key){
     node.addEventListener("input",function(){
@@ -632,6 +657,18 @@
           if(node._ytNode){
             node._ytNode.textContent=obj.yt;
           }
+        }
+      }
+      if(key==="label"){
+        var got=lookupByLabel(obj[key]);
+        if(got){
+          [["work","_workNode"],["ch","_chNode"],["desc","_descNode"]].forEach(function(pair){
+            var k=pair[0], nn=node[pair[1]];
+            if((obj[k]||"").trim()) return;      // 이미 적혀 있으면 절대 덮어쓰지 않는다
+            if(!got[k]) return;
+            obj[k]=got[k];
+            if(nn){ if(MULTI[k]) nn.innerText=got[k]; else nn.textContent=got[k]; }
+          });
         }
       }
       markDirty();
