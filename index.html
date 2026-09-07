@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v32</div>
+      <div class="ver" id="ver">v33</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -621,6 +621,23 @@
     document.body.appendChild(sugBox);
   }
 
+  /* ── 유튜브 제목 뒤에 채널별 해시태그 자동 붙이기 ─────────────────
+     유튜브 제목(또는 영상 제목) 편집을 끝내고 다른 곳을 클릭하면 붙는다.
+     이미 붙어 있으면 다시 안 붙인다.                                  */
+  var YT_TAGS={
+    "치라미":"#アベンジャーズ #マーベル #マーベル映画"
+    // "오이시":"…"  ← 필요해지면 여기 한 줄 추가
+  };
+  function ytTagsOf(obj){ return YT_TAGS[(obj.ch||"").trim()]||""; }
+  function applyYtTags(obj, ytNode){
+    var tags=ytTagsOf(obj); if(!tags) return;
+    var yt=(obj.yt||"").trim(); if(!yt) return;
+    if(yt.indexOf(tags)>=0) return;
+    obj.yt=yt+" "+tags;
+    if(ytNode) ytNode.textContent=obj.yt;
+    markDirty(); refreshKakao();
+  }
+
   /* ── 제목 → 작품명·채널·설명란 자동 채우기 ─────────────────────────
      제목에서 끝의 (숫자)를 뗀 이름으로, 같은 이름을 쓴 지난 카드를 찾아
      작품명·채널·설명란을 가져온다. 표를 따로 관리할 필요가 없다.       */
@@ -651,9 +668,13 @@
       obj[key]=MULTI[key] ? node.innerText : node.textContent;
       if(key==="title"){
         // 유튜브 제목이 비었거나 아직 영상 제목을 따라오던 중이면 같이 갱신
+        // (뒤에 채널 해시태그가 붙어 있어도 그 앞부분이 같으면 따라오던 중으로 본다)
+        var tags=ytTagsOf(obj);
         var yt=(obj.yt||"").trim();
-        if(!yt || yt===prev.trim()){
-          obj.yt=obj[key];
+        var hadTags=!!tags && yt.indexOf(tags)>=0;
+        var ytBase=hadTags ? yt.replace(tags,"").trim() : yt;
+        if(!yt || ytBase===prev.trim()){
+          obj.yt=obj[key]+(hadTags ? " "+tags : "");
           if(node._ytNode){
             node._ytNode.textContent=obj.yt;
           }
@@ -686,6 +707,10 @@
       clearTimeout(bind._s); bind._s=setTimeout(function(){ openSug(node,obj,key); },200);
     });
     node.addEventListener("blur",function(){ setTimeout(closeSug,150); });
+    node.addEventListener("blur",function(){       // 편집이 끝나면 채널 해시태그 붙이기
+      if(key==="yt") applyYtTags(obj,node);
+      else if(key==="title") applyYtTags(obj,node._ytNode);
+    });
     node.addEventListener("paste",function(e){    // 서식 없이 붙여넣기
       e.preventDefault();
       var t=(e.clipboardData||window.clipboardData).getData("text/plain");
