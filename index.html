@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v33</div>
+      <div class="ver" id="ver">v34</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -644,6 +644,27 @@
   function baseLabel(s){
     return (s||"").replace(/[（(]\s*\d+\s*[)）]\s*$/,"").replace(/\s+/g," ").trim();
   }
+  // 자동 채움·기본값으로 들어간 값을 기억한다 (저장 파일에는 안 들어가는 숨은 속성)
+  function autoOf(obj){
+    if(!obj._auto) Object.defineProperty(obj,"_auto",{value:{},enumerable:false,writable:true});
+    return obj._auto;
+  }
+  // 제목 편집이 끝났을 때 한 번만 호출. 빈 칸이거나 "내가 채운 값 그대로"인 칸만 바꾼다.
+  function autoFillFromLabel(obj, nodes){
+    var got=lookupByLabel(obj.label), auto=autoOf(obj);
+    [["work","work"],["ch","ch"],["desc","desc"]].forEach(function(pair){
+      var k=pair[0], nn=nodes[k];
+      var cur=(obj[k]||"").trim();
+      var mine = !cur || (auto[k]!==undefined && cur===String(auto[k]).trim());
+      if(!mine) return;                       // 사장님이 손댄 칸은 절대 안 건드린다
+      var v = got && got[k] ? got[k] : "";
+      if(!v && k==="ch") return;              // 채널은 못 찾았을 때 지우지 않는다(기본값 유지)
+      if(v===cur) return;
+      obj[k]=v; auto[k]=v;
+      if(nn){ if(MULTI[k]) nn.innerText=v; else nn.textContent=(v || (k==="ch"?"채널":"")); }
+    });
+    markDirty(); refreshKakao();
+  }
   function lookupByLabel(name){
     var key=baseLabel(name); if(!key) return null;
     var hit=null;                                  // state.days 는 최신순이라 먼저 걸린 게 최근 것
@@ -680,18 +701,6 @@
           }
         }
       }
-      if(key==="label"){
-        var got=lookupByLabel(obj[key]);
-        if(got){
-          [["work","_workNode"],["ch","_chNode"],["desc","_descNode"]].forEach(function(pair){
-            var k=pair[0], nn=node[pair[1]];
-            if((obj[k]||"").trim()) return;      // 이미 적혀 있으면 절대 덮어쓰지 않는다
-            if(!got[k]) return;
-            obj[k]=got[k];
-            if(nn){ if(MULTI[k]) nn.innerText=got[k]; else nn.textContent=got[k]; }
-          });
-        }
-      }
       markDirty();
       clearTimeout(bind._t); bind._t=setTimeout(refreshKakao,400);
     });
@@ -711,6 +720,11 @@
       if(key==="yt") applyYtTags(obj,node);
       else if(key==="title") applyYtTags(obj,node._ytNode);
     });
+    if(key==="label"){                             // 제목 편집이 끝나면 작품명·채널·설명란 자동 채움
+      node.addEventListener("blur",function(){
+        autoFillFromLabel(obj,{work:node._workNode,ch:node._chNode,desc:node._descNode});
+      });
+    }
     node.addEventListener("paste",function(e){    // 서식 없이 붙여넣기
       e.preventDefault();
       var t=(e.clipboardData||window.clipboardData).getData("text/plain");
@@ -720,8 +734,10 @@
 
   var DAY_PRESET=["치라미","치라미","치라미","오이시","오이시"];
   function blankEntry(n,ch){
-    return {label:"("+n+")",work:"",ch:ch||"",title:"",ko:"",yt:"",
-            desc:"",folder:"",file:"",link:"",script:""};
+    var e={label:"("+n+")",work:"",ch:ch||"",title:"",ko:"",yt:"",
+           desc:"",folder:"",file:"",link:"",script:""};
+    if(ch) autoOf(e).ch=ch;                  // 기본 채널은 작품이 정해지면 따라 바뀐다
+    return e;
   }
   document.getElementById("newday").onclick=function(){
     var t=today();
