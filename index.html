@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v34</div>
+      <div class="ver" id="ver">v35</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -462,7 +462,7 @@
     };
     dh.appendChild(dd);
     v.appendChild(dh);
-    v.appendChild(el("div","hint","글자를 클릭하면 바로 수정돼요 · 제목을 넣으면 작품명·채널·설명란이 저절로 채워져요 · 수정 후 아래 [저장]"));
+    v.appendChild(el("div","hint","글자를 클릭하면 바로 수정돼요 · 왼쪽 위 작품명을 입력하면 작품 정보·폴더명·파일명이 자동으로 채워져요 · 폴더 번호는 날짜별·작품별로 이어져요 · 수정 후 아래 [저장]"));
 
     day.entries.forEach(function(en,ei){
       var card=el("div","card");
@@ -489,6 +489,8 @@
         nodeByKey[key]=val;
         if(key==="yt" && nodeByKey["title"]) nodeByKey["title"]._ytNode=val;
         if(key==="desc") num._descNode=val;
+        if(key==="folder") num._folderNode=val;
+        if(key==="file") num._fileNode=val;
         row.appendChild(val);
         var side=el("div","side2");
         var cp=el("button","cp","복사");
@@ -649,9 +651,37 @@
     if(!obj._auto) Object.defineProperty(obj,"_auto",{value:{},enumerable:false,writable:true});
     return obj._auto;
   }
+  function nextWorkFolder(obj, base){
+    var day=state.days.find(function(d){return d.entries.indexOf(obj)>=0;});
+    var last=0;
+    (day?day.entries:[]).forEach(function(e){
+      if(e===obj) return;
+      var folder=(e.folder||"").trim();
+      var match=folder.match(/[（(]\s*(\d+)\s*[)）]\s*$/);
+      if(match && baseLabel(folder)===base) last=Math.max(last,Number(match[1]));
+    });
+    return base+"("+(last+1)+")";
+  }
+  function autoFillNames(obj,nodes){
+    var base=baseLabel(obj.label),auto=autoOf(obj);
+    if(!base) return;
+    var folder=(obj.folder||"").trim(),file=(obj.file||"").trim();
+    // 같은 제목에서 다시 나가거나 새로고침해도 번호를 올리지 않는다.
+    // 사용자가 직접 바꾼 폴더/완성 파일명은 그대로 보존한다.
+    if(!folder || (folder===auto.folder && auto.namingBase!==base)){
+      obj.folder=nextWorkFolder(obj,base);auto.folder=obj.folder;
+      if(nodes.folder) nodes.folder.textContent=obj.folder;
+    }
+    if(!file || file===auto.file){
+      obj.file=base+"_";auto.file=obj.file;
+      if(nodes.file) nodes.file.textContent=obj.file;
+    }
+    auto.namingBase=base;
+  }
   // 제목 편집이 끝났을 때 한 번만 호출. 빈 칸이거나 "내가 채운 값 그대로"인 칸만 바꾼다.
   function autoFillFromLabel(obj, nodes){
     var got=lookupByLabel(obj.label), auto=autoOf(obj);
+    autoFillNames(obj,nodes);
     [["work","work"],["ch","ch"],["desc","desc"]].forEach(function(pair){
       var k=pair[0], nn=nodes[k];
       var cur=(obj[k]||"").trim();
@@ -722,7 +752,7 @@
     });
     if(key==="label"){                             // 제목 편집이 끝나면 작품명·채널·설명란 자동 채움
       node.addEventListener("blur",function(){
-        autoFillFromLabel(obj,{work:node._workNode,ch:node._chNode,desc:node._descNode});
+        autoFillFromLabel(obj,{work:node._workNode,ch:node._chNode,desc:node._descNode,folder:node._folderNode,file:node._fileNode});
       });
     }
     node.addEventListener("paste",function(e){    // 서식 없이 붙여넣기
