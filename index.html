@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v35</div>
+      <div class="ver" id="ver">v36</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -377,7 +377,7 @@
   var mergeSkipped=0;
   function mergeIn(days){
     mergeSkipped=0;
-    var KEYS=["work","ch","title","ko","yt","desc","folder","file","link","script"];
+    var KEYS=["work","ch","title","ko","yt","desc","folder","file","link","script","brief","workflow_status","source_project","request_index"];
     var newest=null;
     days.forEach(function(od){
       var day=state.days.find(function(x){ return x.date===od.date; });
@@ -478,6 +478,11 @@
       num._workNode=work; num._chNode=ch;     // 제목에서 자동 채울 때 쓸 연결
       head.appendChild(num); head.appendChild(work); head.appendChild(ch); head.appendChild(del);
       card.appendChild(head);
+      if(en.brief){
+        var brief=el("div","hint", "작업 내용 · "+en.brief);
+        brief.style.cssText="white-space:pre-wrap;line-height:1.65;margin:0 0 10px;padding:8px 10px;background:#0b1710;border-radius:6px";
+        card.appendChild(brief);
+      }
       var bodyw=el("div","body"); var metaw=el("div","meta");
       card.appendChild(bodyw); bodyw.appendChild(metaw);
       var nodeByKey={};
