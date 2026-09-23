@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v36</div>
+      <div class="ver" id="ver">v37</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -397,7 +397,7 @@
         // ③ 그래도 없으면 남아 있는 빈 카드
         if(!ex){
           ex=day.entries.find(function(e){
-            return free(e) && !KEYS.some(function(k){ return (e[k]||"").trim(); });
+            return free(e) && !KEYS.some(function(k){ return String(e[k] == null ? "" : e[k]).trim(); });
           });
         }
         if(!ex){
@@ -407,8 +407,8 @@
         }
         taken.push(ex);
         KEYS.forEach(function(k){
-          var v=(oe[k]||"").trim();
-          if(v && !(ex[k]||"").trim()){ ex[k]=oe[k]; newest=od.date; }
+          var v=String(oe[k] == null ? "" : oe[k]).trim();
+          if(v && !String(ex[k] == null ? "" : ex[k]).trim()){ ex[k]=oe[k]; newest=od.date; }
         });
       });
     });
@@ -1108,7 +1108,7 @@
                 changed.push("기록");
               }
             }
-          }catch(e){}
+          }catch(e){ done("기록을 읽지 못했어요: "+e.message, 7000); return; }
         }
         if(html && /S-Way/.test(html) && html.trim()!==(liveHtml||"").trim()){   // 기록 다음에 실행됨
           jobs.push(function(){ return putFile("index.html", html, "홈페이지 업데이트"); });
