@@ -1,6 +1,107 @@
 {
  "days": [
   {
+   "date": "2026-10-01",
+   "entries": [
+    {
+     "label": "닥스 (1)",
+     "work": "ドクター・ストレンジ",
+     "ch": "치라미",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "ドクター・ストレンジ\n\n#アベンジャーズ #マーベル #マーベル映画 #marvel #mcu",
+     "folder": "닥스(1)",
+     "file": "닥스_",
+     "link": "https://www.youtube.com/shorts/WUEB_7cTxsI",
+     "script": "",
+     "brief": "무릎 꿇고 가르쳐달라는 스트레인지 → 거절·추방·문 앞 항의 → 5시간 대기 → 모르도가 힘·고집·오만·야망을 설명하고 스트레인지 같은 사람이 필요하다고 설득",
+     "source_project": "1001 닥스",
+     "workflow_status": "초안 검수 중 · 최종 제목/대본 대기"
+    },
+    {
+     "label": "닥스 (2)",
+     "work": "ドクター・ストレンジ",
+     "ch": "치라미",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "ドクター・ストレンジ\n\n#アベンジャーズ #マーベル #マーベル映画 #marvel #mcu",
+     "folder": "닥스(2)",
+     "file": "닥스_",
+     "link": "https://www.youtube.com/shorts/O3iuUV3epDM",
+     "script": "",
+     "brief": "에인션트 원 미러 디멘션 조작 → 위선자 → 전투 → 케실리우스 포탈 도주 → 에인션트 원 포탈·공간 해제·뒷모습 후드 벗기",
+     "source_project": "1001 닥스 2",
+     "workflow_status": "초안 검수 중 · 최종 제목/대본 대기"
+    },
+    {
+     "label": "닥스 (3)",
+     "work": "ドクター・ストレンジ",
+     "ch": "치라미",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "ドクター・ストレンジ\n\n#アベンジャーズ #マーベル #マーベル映画 #marvel #mcu",
+     "folder": "닥스(3)",
+     "file": "닥스_",
+     "link": "https://www.youtube.com/shorts/YJls0qG9MFA",
+     "script": "",
+     "brief": "멈춰 외침에도 살해 → 카마르타지 경력·이름·닥터 대화 → 채찍 전투·공간 조작 → 양손 마법 한쪽 실패",
+     "source_project": "1001 닥스 3",
+     "workflow_status": "초안 검수 중 · 최종 제목/대본 대기"
+    },
+    {
+     "label": "가오갤 (4)",
+     "work": "ガーディアンズ・オブ・ギャラクシー / リミックス",
+     "ch": "오이시",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "ガーディアンズ・オブ・ギャラクシー / リミックス\n\n#アベンジャーズ #マーベル #マーベル映画 #エックスメン #marvel #mcu",
+     "folder": "가오갤(1)",
+     "file": "가오갤_",
+     "link": "https://www.youtube.com/shorts/TQFWk17rcl8",
+     "script": "",
+     "brief": "퀼의 배신·돈 추궁 → 화살 거두고 웃으며 풀어줌·불만 표정 → 부하의 편애 항의·반란 → 묶인 욘두 폭행·충성파 우주 추방·반란파 웃음",
+     "source_project": "1001 가오갤 4",
+     "workflow_status": "초안 검수 중 · 최종 제목/대본 대기"
+    },
+    {
+     "label": "가오갤3 (5)",
+     "work": "ガーディアンズ・オブ・ギャラクシー：VOLUME 3",
+     "ch": "오이시",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "ガーディアンズ・オブ・ギャラクシー：VOLUME 3\n\n#アベンジャーズ #マーベル #マーベル映画 #エックスメン #marvel #mcu",
+     "folder": "가오갤3",
+     "file": "가오갤3_",
+     "link": "https://www.youtube.com/shorts/LmlKT-B6cSk",
+     "script": "",
+     "brief": "크래글린 화살 각성·마음으로 조종 → 전투 → 코스모가 크래글린을 보호",
+     "source_project": "1001 가오갤3 5",
+     "workflow_status": "초안 검수 중 · 최종 제목/대본 대기"
+    },
+    {
+     "label": "가오갤 (6)",
+     "work": "ガーディアンズ・オブ・ギャラクシー",
+     "ch": "오이시",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "ガーディアンズ・オブ・ギャラクシー\n\n#アベンジャーズ #マーベル #マーベル映画 #エックスメン #marvel #mcu",
+     "folder": "가오갤(2)",
+     "file": "가오갤_",
+     "link": "https://www.youtube.com/shorts/kgbo0G30YGs",
+     "script": "",
+     "brief": "욘두 비행선 추락 → 포위·적 대사 → 화살 꺼내 모두 처치",
+     "source_project": "1001 가오갤 6",
+     "workflow_status": "초안 검수 중 · 최종 제목/대본 대기"
+    }
+   ]
+  },
+  {
    "date": "2026-09-30",
    "entries": [
     {
