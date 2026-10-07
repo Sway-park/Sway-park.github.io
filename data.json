@@ -1,6 +1,113 @@
 {
  "days": [
   {
+   "date": "2026-10-07",
+   "entries": [
+    {
+     "label": "샹치 (1)",
+     "work": "シャン・チー／テン・リングスの伝説",
+     "ch": "치라미",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "シャン・チー／テン・リングスの伝説\n\n#アベンジャーズ #マーベル #マーベル映画 #marvel #mcu",
+     "folder": "샹치",
+     "file": "샹치_",
+     "link": "https://www.youtube.com/shorts/kEloGVnZNvY",
+     "script": "",
+     "brief": "탈로 길을 묻는 웬우→여인과 대화/도발→전투 중 호감→물에 젖은 웬우→그렇게 아버지를 만났다는 말",
+     "source_project": "1007 샹치",
+     "request_index": 1,
+     "workflow_status": "소재 접수 · 컷과 TTS 구성 중"
+    },
+    {
+     "label": "아이언맨3 (2)",
+     "work": "アイアンマン3",
+     "ch": "치라미",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "アイアンマン3\n\n#アベンジャーズ #マーベル #マーベル映画 #marvel #mcu",
+     "folder": "아이언맨3",
+     "file": "아이언맨3_",
+     "link": "https://www.youtube.com/shorts/B5jjxVxecJ0",
+     "script": "",
+     "brief": "울리는 시계→부수면 물어내→시계 파괴/여동생 시계→풀리면 먼저 죽인다는 말→카운트다운 실패/급하게 재시도→파츠 착용 전투→추가 파츠 지연→할리가 창고 문 열기→파츠 비행과 아이 미소",
+     "source_project": "1007 아이언맨3 2",
+     "request_index": 2,
+     "workflow_status": "소재 접수 · 컷과 TTS 구성 중"
+    },
+    {
+     "label": "아이언맨 (3)",
+     "work": "アイアンマン",
+     "ch": "치라미",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "アイアンマン\n\n#アベンジャーズ #マーベル #マーベル映画 #marvel #mcu",
+     "folder": "아이언맨",
+     "file": "아이언맨_",
+     "link": "https://www.youtube.com/shorts/rrnE0PBPYdw",
+     "script": "",
+     "brief": "마크3 착용→기자회견→나는 아이언맨이다",
+     "source_project": "1007 아이언맨 3",
+     "request_index": 3,
+     "workflow_status": "소재 접수 · 컷과 TTS 구성 중"
+    },
+    {
+     "label": "가오갤3 (4)",
+     "work": "ガーディアンズ・オブ・ギャラクシー：VOLUME 3",
+     "ch": "오이시",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "ガーディアンズ・オブ・ギャラクシー：VOLUME 3\n\n#アベンジャーズ #マーベル #マーベル映画 #エックスメン #marvel #mcu",
+     "folder": "가오갤3(1)",
+     "file": "가오갤3_",
+     "link": "https://www.youtube.com/shorts/cy1muMOWc4M",
+     "script": "",
+     "brief": "파란 버튼을 가모라 전용 무전으로 착각→전체 교신 개그 (레퍼런스3위)",
+     "source_project": "1007 가오갤3 4",
+     "request_index": 4,
+     "workflow_status": "소재 접수 · 컷과 TTS 구성 중"
+    },
+    {
+     "label": "가오갤3 (5)",
+     "work": "ガーディアンズ・オブ・ギャラクシー：VOLUME 3",
+     "ch": "오이시",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "ガーディアンズ・オブ・ギャラクシー：VOLUME 3\n\n#アベンジャーズ #マーベル #マーベル映画 #エックスメン #marvel #mcu",
+     "folder": "가오갤3(2)",
+     "file": "가오갤3_",
+     "link": "https://www.youtube.com/shorts/cy1muMOWc4M",
+     "script": "",
+     "brief": "죽어가는 친구 설명→맨티스 몸짓→네뷸라 태클 (레퍼런스2위)",
+     "source_project": "1007 가오갤3 5",
+     "request_index": 5,
+     "workflow_status": "소재 접수 · 컷과 TTS 구성 중"
+    },
+    {
+     "label": "가오갤3 (6)",
+     "work": "ガーディアンズ・オブ・ギャラクシー：VOLUME 3",
+     "ch": "오이시",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "ガーディアンズ・オブ・ギャラクシー：VOLUME 3\n\n#アベンジャーズ #マーベル #マーベル映画 #エックスメン #marvel #mcu",
+     "folder": "가오갤3(3)",
+     "file": "가오갤3_",
+     "link": "https://www.youtube.com/shorts/DHpFglXyw8g",
+     "script": "",
+     "brief": "하이 에볼루셔너리의 말에 퀼이 애정결핍 등을 지적하며 반박 (레퍼런스3위)",
+     "source_project": "1007 가오갤3 6",
+     "request_index": 6,
+     "workflow_status": "소재 접수 · 컷과 TTS 구성 중"
+    }
+   ]
+  },
+  {
    "date": "2026-10-06",
    "entries": [
     {
