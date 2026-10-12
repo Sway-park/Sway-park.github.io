@@ -1,6 +1,113 @@
 {
  "days": [
   {
+   "date": "2026-10-12",
+   "entries": [
+    {
+     "label": "아이언맨 (1)",
+     "work": "アイアンマン",
+     "ch": "치라미",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "アイアンマン\n\n#アベンジャーズ #マーベル #マーベル映画 #marvel #mcu",
+     "folder": "아이언맨",
+     "file": "아이언맨_",
+     "link": "https://www.youtube.com/shorts/qUrGL3UkUyg",
+     "script": "",
+     "brief": "크리스틴의 저택 탐색→페퍼에게 비아냥→페퍼의 응수→토니 일정 관리→생일을 잊은 토니와 이미 선물을 산 페퍼의 두 번째 개그",
+     "source_project": "1012 아이언맨",
+     "request_index": 1,
+     "workflow_status": "소재 접수 · 화면/음성 분석 및 원본 구간 대조 중"
+    },
+    {
+     "label": "아이언맨3 (2)",
+     "work": "アイアンマン3",
+     "ch": "치라미",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "アイアンマン3\n\n#アベンジャーズ #マーベル #マーベル映画 #marvel #mcu",
+     "folder": "아이언맨3",
+     "file": "아이언맨3_",
+     "link": "https://www.youtube.com/shorts/L9c6EHlsOGY",
+     "script": "",
+     "brief": "킬리언의 위협을 페퍼가 제압→슈트가 페퍼를 적으로 인식→페퍼가 슈트와 킬리언을 처리→토니의 능청스러운 농담",
+     "source_project": "1012 아이언맨3 2",
+     "request_index": 2,
+     "workflow_status": "소재 접수 · 화면/음성 분석 및 원본 구간 대조 중"
+    },
+    {
+     "label": "어벤져스 (3)",
+     "work": "アベンジャーズ",
+     "ch": "치라미",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "アベンジャーズ\n\n#アベンジャーズ #マーベル #マーベル映画 #marvel #mcu",
+     "folder": "어벤져스",
+     "file": "어벤져스_",
+     "link": "https://www.youtube.com/shorts/eqk4OKS4VZE",
+     "script": "",
+     "brief": "포털 폐쇄 직전 토니 귀환→멈추지 않는 추락→헐크 구조→의식 없는 토니→포효 뒤 깨어남과 농담",
+     "source_project": "1012 어벤져스 3",
+     "request_index": 3,
+     "workflow_status": "소재 접수 · 화면/음성 분석 및 원본 구간 대조 중"
+    },
+    {
+     "label": "가오갤 (4)",
+     "work": "ガーディアンズ・オブ・ギャラクシー",
+     "ch": "오이시",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "ガーディアンズ・オブ・ギャラクシー\n\n#アベンジャーズ #マーベル #マーベル映画 #エックスメン #marvel #mcu",
+     "folder": "가오갤",
+     "file": "가오갤_",
+     "link": "https://www.youtube.com/shorts/2F955zKCfGM",
+     "script": "",
+     "brief": "오브를 둘러싼 퀼·가모라 전투→로켓·그루트 난입→로켓의 전기총 제압과 자랑→노바 군단 체포로 역전",
+     "source_project": "1012 가오갤 4",
+     "request_index": 4,
+     "workflow_status": "소재 접수 · 화면/음성 분석 및 원본 구간 대조 중"
+    },
+    {
+     "label": "가오갤3 (5)",
+     "work": "ガーディアンズ・オブ・ギャラクシー：VOLUME 3",
+     "ch": "오이시",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "ガーディアンズ・オブ・ギャラクシー：VOLUME 3\n\n#アベンジャーズ #マーベル #マーベル映画 #エックスメン #marvel #mcu",
+     "folder": "가오갤3(1)",
+     "file": "가오갤3(1)_",
+     "link": "https://www.youtube.com/shorts/DHpFglXyw8g",
+     "script": "",
+     "brief": "사용자 지정: 레퍼런스 2위 순수 비난 장면만. 하이 에볼루셔너리의 도발→퀼의 로보캅 독설→가모라/상대 반응→통신 종료 후 퀼 반응. 3위·1위·순위 소개 제외",
+     "source_project": "1012 가오갤3 5",
+     "request_index": 5,
+     "workflow_status": "소재 접수 · 화면/음성 분석 및 원본 구간 대조 중"
+    },
+    {
+     "label": "가오갤3 (6)",
+     "work": "ガーディアンズ・オブ・ギャラクシー：VOLUME 3",
+     "ch": "오이시",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "ガーディアンズ・オブ・ギャラクシー：VOLUME 3\n\n#アベンジャーズ #マーベル #マーベル映画 #エックスメン #marvel #mcu",
+     "folder": "가오갤3(2)",
+     "file": "가오갤3(2)_",
+     "link": "https://www.youtube.com/shorts/ORogq0bYJCA",
+     "script": "",
+     "brief": "살려 달라는 부하를 붙잡고 뛰어내리는 퀼→그루트 추격→둘 다 죽는다는 부하와 퀼의 답→그루트 날개 활강→동료 교차 화면→부하를 아래에 두고 착지",
+     "source_project": "1012 가오갤3 6",
+     "request_index": 6,
+     "workflow_status": "소재 접수 · 화면/음성 분석 및 원본 구간 대조 중"
+    }
+   ]
+  },
+  {
    "date": "2026-10-08",
    "entries": [
     {
