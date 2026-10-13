@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v37</div>
+      <div class="ver" id="ver">v38</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -373,6 +373,24 @@
     try{ var s=localStorage.getItem("swaynote_data");
       return s?JSON.parse(s):null; }catch(e){ return null; }
   }
+  /* 홈페이지 제목만 한 줄로: 캡컷 타이틀/대본/설명란 줄바꿈은 별개다. */
+  function singleLineNoteField(key,value){
+    if(["title","ko","yt","file"].indexOf(key)<0 || typeof value!=="string") return value;
+    return value.replace(/\s*[\r\n\u2028\u2029]+\s*/g," ").trim();
+  }
+  function normalizeNoteEntry(entry){
+    var copy=Object.assign({},entry);
+    ["title","ko","yt","file"].forEach(function(key){
+      if(Object.prototype.hasOwnProperty.call(copy,key)) copy[key]=singleLineNoteField(key,copy[key]);
+    });
+    return copy;
+  }
+  function normalizeNoteImport(data){
+    if(!data || !Array.isArray(data.days)) return data;
+    return Object.assign({},data,{days:data.days.map(function(day){
+      return Object.assign({},day,{entries:day.entries.map(normalizeNoteEntry)});
+    })});
+  }
   /* 폴더 자료 병합 — 내가 쓴 내용은 덮지 않고 빈 칸만 채움 */
   var mergeSkipped=0;
   function mergeIn(days){
@@ -386,6 +404,7 @@
       var taken=[];                                 // 이미 짝지은 카드(한 카드에 두 번 안 들어가게)
       function free(e){ return e && taken.indexOf(e)<0; }
       (od.entries||[]).forEach(function(oe,oi){
+        oe=normalizeNoteEntry(oe);
         // ① 같은 순번 카드 — 번호가 곧 신원이다 (1번 = 1번 영상)
         var ex = free(day.entries[oi]) ? day.entries[oi] : null;
         // ② 순번이 막혔으면 폴더명이 같은 카드
@@ -417,6 +436,7 @@
 
   function merge(other){
     if(!other||!other.days) return;
+    other=normalizeNoteImport(other);
     other.days.forEach(function(od){
       var d=state.days.find(function(x){return x.date===od.date;});
       if(!d) state.days.push(od);
@@ -903,6 +923,7 @@
       var d=JSON.parse(t);
       if(d.date&&d.entries) d={days:[d]};
       if(!d.days) throw 0;
+      d=normalizeNoteImport(d);
       if(mode==="replace"){
         if(!confirm("지금 노트를 이 자료로 전부 바꿀까요? ("+d.days.length+"일치)")) return;
         state={days:d.days};
