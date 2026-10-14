@@ -1,6 +1,113 @@
 {
  "days": [
   {
+   "date": "2026-10-14",
+   "entries": [
+    {
+     "label": "아이언맨3 (1)",
+     "work": "アイアンマン3",
+     "ch": "치라미",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "アイアンマン3\n\n#アベンジャーズ #マーベル #マーベル映画 #marvel #mcu",
+     "folder": "아이언맨3",
+     "file": "아이언맨3_",
+     "link": "https://www.youtube.com/watch?v=2vfxtur3jxo",
+     "script": "",
+     "brief": "페퍼를 슈트로 맞이한 토니. 마스크를 벗고 키스해 달라는 부탁을 피하다가 페퍼가 작업실로 내려가 원격 조종 중인 토니를 발견한다. 슈트의 정체를 먼저 설명하지 않고 마스크 회피→직접 확인→변명과 사과로 회수한다.",
+     "request_index": 1,
+     "source_project": "1014 아이언맨3",
+     "workflow_status": "레퍼런스 분석·컷 준비 중"
+    },
+    {
+     "label": "아이언맨광고 (2)",
+     "work": "アイアンマン3／Verizon FiOS CM",
+     "ch": "치라미",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "アイアンマン3／Verizon FiOS CM\n\n#アベンジャーズ #マーベル #マーベル映画 #marvel #mcu",
+     "folder": "아이언맨광고",
+     "file": "아이언맨광고_",
+     "link": "https://www.youtube.com/watch?v=80jo6XZRspU",
+     "script": "",
+     "brief": "과학 과제를 준비하는 소년이 집에서 슈트를 제작하고 부모 앞에서 장착해 날아간다. 과학 발표회에 착지해 친구들의 시선을 모으고 트로피로 마지막 개그를 회수한다. D드라이브 광고 원본 사용. 영어 대사를 짧고 의미가 자연스러운 일본어로 번역한다.",
+     "request_index": 2,
+     "source_project": "1014 아이언맨광고 2",
+     "workflow_status": "레퍼런스 분석·컷 준비 중"
+    },
+    {
+     "label": "아이언맨2 (3)",
+     "work": "アイアンマン2",
+     "ch": "치라미",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "アイアンマン2\n\n#アベンジャーズ #マーベル #マーベル映画 #marvel #mcu",
+     "folder": "아이언맨2",
+     "file": "아이언맨2_",
+     "link": "https://www.youtube.com/watch?v=nq7KST58DWM",
+     "script": "",
+     "brief": "모나코에서 위플래시에게 몰린 토니가 페퍼에게 가방을 받아 마크5를 장착한다. 가방의 전개·몸통·팔·마스크가 결합하는 순서를 살리고, 채찍에 밀림→접근해 제압→아크 리액터 제거까지 이어진다.",
+     "request_index": 3,
+     "source_project": "1014 아이언맨2 3",
+     "workflow_status": "레퍼런스 분석·컷 준비 중"
+    },
+    {
+     "label": "그루트모음 (4)",
+     "work": "ガーディアンズ・オブ・ギャラクシー／アベンジャーズ",
+     "ch": "오이시",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "ガーディアンズ・オブ・ギャラクシー／アベンジャーズ\n\n#アベンジャーズ #マーベル #マーベル映画 #エックスメン #marvel #mcu",
+     "folder": "그루트모음",
+     "file": "그루트모음_",
+     "link": "https://www.youtube.com/watch?v=YC-LFOehu9E",
+     "script": "",
+     "brief": "같은 말처럼 들리는 그루트어를 여러 영화 장면으로 설명한다. 베이비 그루트와 성체의 발화 예시→토르와 로켓의 우주선 대화→와칸다에서 캡틴과의 인사 개그. 거의 풀TTS로 구성하되 마지막 원작 문답을 남긴다. 선택 과목이라는 원작 대사를 정규 필수교육으로 확대하지 않는다.",
+     "request_index": 4,
+     "source_project": "1014 그루트모음 4",
+     "workflow_status": "레퍼런스 분석·컷 준비 중"
+    },
+    {
+     "label": "인피니티워 (5)",
+     "work": "アベンジャーズ／インフィニティ・ウォー",
+     "ch": "오이시",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "アベンジャーズ／インフィニティ・ウォー\n\n#アベンジャーズ #マーベル #マーベル映画 #エックスメン #marvel #mcu",
+     "folder": "인피니티워",
+     "file": "인피니티워_",
+     "link": "https://www.youtube.com/watch?v=Jf3kRpoIC9Q",
+     "script": "",
+     "brief": "손잡이가 없어 완성하지 못한 스톰브레이커. 그루트가 뜨거운 금속에 가지를 뻗어 묶고 자신의 팔을 잘라 손잡이를 완성한다. 빈 손잡이라는 문제→그루트의 결심과 행동→완성된 무기·토르의 반응으로 연결한다.",
+     "request_index": 5,
+     "source_project": "1014 인피니티워 5",
+     "workflow_status": "레퍼런스 분석·컷 준비 중"
+    },
+    {
+     "label": "가오갤3 (6)",
+     "work": "ガーディアンズ・オブ・ギャラクシー：VOLUME 3",
+     "ch": "오이시",
+     "title": "",
+     "ko": "",
+     "yt": "",
+     "desc": "ガーディアンズ・オブ・ギャラクシー：VOLUME 3\n\n#アベンジャーズ #マーベル #マーベル映画 #エックスメン #marvel #mcu",
+     "folder": "가오갤3",
+     "file": "가오갤3_",
+     "link": "https://www.youtube.com/watch?v=RYpJTvxmbwg",
+     "script": "",
+     "brief": "하이 에볼루셔너리에게 공격당하는 로켓이 자기 이름을 선언하고 반격한다. 너구리라는 정체를 받아들이는 회상 뒤 동료들이 가세해 적을 제압한다. 죽이지 않겠다는 선택과 가디언즈라는 마지막 대사로 마무리한다.",
+     "request_index": 6,
+     "source_project": "1014 가오갤3 6",
+     "workflow_status": "레퍼런스 분석·컷 준비 중"
+    }
+   ]
+  },
+  {
    "date": "2026-10-13",
    "entries": [
     {
