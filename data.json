@@ -82,7 +82,11 @@
      "folder": "판타스틱4",
      "file": "판타스틱4_",
      "link": "https://www.youtube.com/shorts/MEbT39KmyIg",
-     "script": ""
+     "script": "(TTS) 敵に囲まれても\n(TTS) 적에게 둘러싸여도\n\n(TTS) 妙に余裕のグルート\n(TTS) 묘하게 여유로운 그루트\n\nいやー罠なんかじゃない\n아니 함정 같은 게 아냐\n\n対決だよ\n대결이야\n\nよし全員殺せ\n좋아 전부 죽여\n\nなんだそれは\n뭐야 그건\n\n爆弾だー\n폭탄이다\n\n(TTS) ところが爆煙の中から\n(TTS) 그런데 폭발 연기 속에서\n\n俺はグルート\n나는 그루트다",
+     "brief": "레퍼런스 첫 클립만 확장. 적에게 포위된 퀼과 그루트가 수류탄으로 틈을 만든다. 폭연 속에서 여러 개의 총 든 팔을 펼친 그루트와 퀼이 함께 싸우고 그루트의 자기소개로 마무리.",
+     "workflow_status": "컷·TTS·대사 자막 삽입 준비",
+     "source_project": "1015 가오갤3 5",
+     "request_index": 5
     },
     {
      "label": "가오갤3 (5)",
@@ -95,7 +99,11 @@
      "folder": "가오갤3",
      "file": "가오갤3_",
      "link": "https://www.youtube.com/shorts/8M-M5BRN-Zs",
-     "script": ""
+     "script": "(TTS) 仲間と脱出する\n(TTS) 동료들과 탈출하는\n\n(TTS) 小さなグルート\n(TTS) 작은 그루트\n\n(TTS) ところがある男を\n(TTS) 그런데 어떤 남자를\n\n(TTS) 見つけた途端\n(TTS) 발견하자마자",
+     "brief": "레퍼런스 베이비 그루트 전투만 확장. 욘두와 탈출하던 그루트가 한 남자를 발견하고 분노한다. 어깨에서 뛰어내려 쫓아가 다리를 가지로 묶고 난간 밖으로 던진 뒤 동료에게 돌아온다.",
+     "workflow_status": "컷·TTS·대사 자막 삽입 준비",
+     "source_project": "1015 가오갤2 6",
+     "request_index": 6
     }
    ]
   },
