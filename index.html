@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v38</div>
+      <div class="ver" id="ver">v39</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -926,6 +926,27 @@
     var mode=document.querySelector('input[name="impmode"]:checked').value;
     try{
       var d=JSON.parse(t);
+      if(d.noteRepair){
+        var repair=d.noteRepair;
+        var day=state.days.find(function(x){return x.date===repair.date;});
+        if(!day || day.entries.length!==repair.entries.length) throw new Error("카드 수 불일치");
+        var ordered=repair.entries.map(function(p){
+          var matches=day.entries.filter(function(e){return e.label===p.label && e.link===p.link;});
+          if(matches.length!==1) throw new Error("카드 식별 불일치");
+          var copy=Object.assign({},matches[0]);
+          ["brief","source_project","request_index"].forEach(function(k){
+            if(Object.prototype.hasOwnProperty.call(p,k)) copy[k]=p[k];
+          });
+          return copy;
+        });
+        if(new Set(ordered.map(function(e){return e.label;})).size!==ordered.length) throw new Error("중복 카드");
+        localStorage.setItem("swaynote_before_repair_"+repair.date,JSON.stringify(state));
+        day.entries=ordered; sel=repair.date;
+        markDirty(); renderMenu(); renderView(); refreshKakao();
+        document.getElementById("m-imp").classList.remove("show");
+        toast("지정 날짜 순서·작업 설명 수정 완료 — 저장해 주세요",5000);
+        return;
+      }
       if(d.date&&d.entries) d={days:[d]};
       if(!d.days) throw 0;
       d=normalizeNoteImport(d);
@@ -1123,7 +1144,8 @@
             var d=JSON.parse(json);
             if(d && d.days){
               var before=JSON.stringify(state);
-              var added=mergeIn(d.days);
+              // 업데이트는 화면에서 선택한 날짜만 반영한다. 과거 기록은 보존한다.
+              var added=mergeIn(d.days.filter(function(day){ return day.date===sel; }));
               if(JSON.stringify(state)!==before){
                 var nw=JSON.stringify(state);
                 saved=nw; setDirty(false);
