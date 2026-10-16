@@ -400,36 +400,41 @@
     days.forEach(function(od){
       var day=state.days.find(function(x){ return x.date===od.date; });
       if(!day){ day={date:od.date, entries:[]}; state.days.push(day); }
-      var fresh=(day.entries.length===0);           // 카드가 하나도 없는 날에만 새로 만든다
-      var taken=[];                                 // 이미 짝지은 카드(한 카드에 두 번 안 들어가게)
+      var fresh=(day.entries.length===0);
+      var original=day.entries.slice(), taken=[], ordered=[];
       function free(e){ return e && taken.indexOf(e)<0; }
+      function number(e){
+        if(e.request_index!=null && String(e.request_index).trim()!=="") return String(e.request_index);
+        var m=String(e.label||"").match(/\((\d+)\)\s*$/);
+        return m ? m[1] : "";
+      }
+      function identified(e){ return !!(e.source_project || number(e)); }
       (od.entries||[]).forEach(function(oe,oi){
         oe=normalizeNoteEntry(oe);
-        // ① 같은 순번 카드 — 번호가 곧 신원이다 (1번 = 1번 영상)
-        var ex = free(day.entries[oi]) ? day.entries[oi] : null;
-        // ② 순번이 막혔으면 폴더명이 같은 카드
-        if(!ex){
-          ex=day.entries.find(function(e){
-            return free(e) && oe.folder && e.folder && e.folder===oe.folder;
+        // 작품명·폴더·링크는 여러 영상이 공유한다. 카드 식별자로 쓰지 않는다.
+        var ex=original.find(function(e){
+          return free(e) && oe.source_project && e.source_project===oe.source_project;
+        });
+        if(!ex && number(oe)){
+          ex=original.find(function(e){
+            return free(e) && number(e)===number(oe) &&
+              !(oe.source_project && e.source_project && oe.source_project!==e.source_project);
           });
         }
-        // ③ 그래도 없으면 남아 있는 빈 카드
+        // 식별자 없는 과거 자료만 원래 위치에 빈 칸을 보충한다.
+        if(!ex && !identified(oe) && free(original[oi]) && !identified(original[oi])) ex=original[oi];
         if(!ex){
-          ex=day.entries.find(function(e){
-            return free(e) && !KEYS.some(function(k){ return String(e[k] == null ? "" : e[k]).trim(); });
-          });
+          if(fresh || identified(oe)){
+            ex=oe; newest=od.date;
+          }else{ mergeSkipped++; return; }
         }
-        if(!ex){
-          if(fresh){ day.entries.push(oe); newest=od.date; }   // 카드가 하나도 없는 날에만 새로 깐다
-          else mergeSkipped++;                                // 그 외에는 절대 밑에 안 만든다 (건너뛴 개수만 알림)
-          return;
-        }
-        taken.push(ex);
+        taken.push(ex); ordered.push(ex);
         KEYS.forEach(function(k){
           var v=String(oe[k] == null ? "" : oe[k]).trim();
           if(v && !String(ex[k] == null ? "" : ex[k]).trim()){ ex[k]=oe[k]; newest=od.date; }
         });
       });
+      day.entries=ordered.concat(original.filter(function(e){return taken.indexOf(e)<0;}));
     });
     return newest;
   }
