@@ -1144,8 +1144,9 @@
             var d=JSON.parse(json);
             if(d && d.days){
               var before=JSON.stringify(state);
-              // 업데이트는 화면에서 선택한 날짜만 반영한다. 과거 기록은 보존한다.
-              var added=mergeIn(d.days.filter(function(day){ return day.date===sel; }));
+              // 선택한 날짜와 아직 없는 새 날짜를 반영한다. 다른 기존 날짜는 보존한다.
+              var knownDates=state.days.map(function(day){ return day.date; });
+              var added=mergeIn(d.days.filter(function(day){ return day.date===sel || knownDates.indexOf(day.date)<0; }));
               if(JSON.stringify(state)!==before){
                 var nw=JSON.stringify(state);
                 saved=nw; setDirty(false);
