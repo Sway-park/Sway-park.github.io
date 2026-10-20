@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v39</div>
+      <div class="ver" id="ver">v40</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -909,7 +909,7 @@
           fetch("index.html?bust="+Date.now(),{cache:"no-store"})
             .then(function(r2){ return r2.text(); })
             .then(function(t){
-              var ready = want ? (t.indexOf('id="ver">'+want+'<')>=0) : (t.trim()===html.trim());
+              var ready = t.trim()===html.trim();
               if(ready){ hardReload(); return; }
               if(n>30){ toast("반영이 늦어요 — 1~2분 뒤 새로고침해 주세요",6000); return; }
               setTimeout(poll,4000);
@@ -1188,8 +1188,7 @@
             fetch("index.html?bust="+Date.now(),{cache:"no-store"})
               .then(function(r){ return r.text(); })
               .then(function(t){
-                var ready = want ? (t.indexOf('id="ver">'+want+'<')>=0)
-                                 : (t.trim()===html.trim());
+                var ready = t.trim()===html.trim();
                 if(ready){ hardReload(); return; }
                 if(n>30){ done("반영이 늦어요 — 1~2분 뒤 새로고침해 주세요",6000); return; }
                 setTimeout(poll,4000);
