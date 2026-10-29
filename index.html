@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v40</div>
+      <div class="ver" id="ver">v41</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -427,6 +427,14 @@
           if(fresh || identified(oe)){
             ex=oe; newest=od.date;
           }else{ mergeSkipped++; return; }
+        }
+        // Explicit correction: replace only the exact generated value, never a user edit.
+        if(typeof oe.folder_correction_from === "string" &&
+           String(ex.folder||"") === oe.folder_correction_from &&
+           typeof oe.folder === "string" &&
+           oe.folder.indexOf(oe.folder_correction_from+"(")===0 &&
+           /\(\d+\)$/.test(oe.folder)){
+          ex.folder=oe.folder; newest=od.date;
         }
         taken.push(ex); ordered.push(ex);
         KEYS.forEach(function(k){
@@ -1202,7 +1210,7 @@
     })["catch"](function(e){
       if(e==="denied") done("폴더 권한이 필요해요 — 다시 눌러서 허용해 주세요",5000);
       else if(e==="unsupported") done("");
-      else done("");
+      else done("업데이트 중 오류가 발생했어요 — "+(e && e.message || String(e)),7000);
     });
   };
 
