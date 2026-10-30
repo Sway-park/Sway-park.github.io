@@ -125,7 +125,15 @@
      "brief": "세레브로에서 시가를 피우는 로건에게 찰스가 정신 능력을 이용한 금연 경고를 한다. 거친 로건이 즉시 시가를 끄는 반응과 두 사람의 친근한 응수로 구성.",
      "workflow_status": "컷·자막 준비 중",
      "source_project": "1030 엑스맨2 4",
-     "request_index": 4
+     "request_index": 4,
+     "extra_yt_tags": [
+      "#パトリックスチュワート"
+     ],
+     "extra_desc_tags": [
+      "#パトリックスチュワート",
+      "#PatrickStewart",
+      "#プロフェッサーX"
+     ]
     },
     {
      "label": "로건 (5)",
@@ -142,7 +150,15 @@
      "brief": "로건이 호텔에서 찰스의 발작에 휘말린 사람들과 무장한 적들을 발견한다. 움직이기 어려운 상황을 버티며 찰스에게 접근하고, 로라가 건넨 주사로 발작을 멈추는 과정. 레퍼런스 확인 후 세부 컷 준비 중.",
      "workflow_status": "컷·자막 준비 중",
      "source_project": "1030 로건 5",
-     "request_index": 5
+     "request_index": 5,
+     "extra_yt_tags": [
+      "#パトリックスチュワート"
+     ],
+     "extra_desc_tags": [
+      "#パトリックスチュワート",
+      "#PatrickStewart",
+      "#プロフェッサーX"
+     ]
     },
     {
      "label": "로건 (6)",
@@ -159,7 +175,15 @@
      "brief": "도로 사고로 말들이 달아난 상황에서 찰스가 도움을 권하고 로건이 나선다. 찰스가 말들을 진정시켜 돌아오게 하는 해법과 로건의 반응을 중심으로 구성. 레퍼런스 확인 후 세부 컷 준비 중.",
      "workflow_status": "컷·자막 준비 중",
      "source_project": "1030 로건 6",
-     "request_index": 6
+     "request_index": 6,
+     "extra_yt_tags": [
+      "#パトリックスチュワート"
+     ],
+     "extra_desc_tags": [
+      "#パトリックスチュワート",
+      "#PatrickStewart",
+      "#プロフェッサーX"
+     ]
     }
    ]
   },
