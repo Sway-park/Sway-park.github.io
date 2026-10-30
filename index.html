@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v41</div>
+      <div class="ver" id="ver">v43</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -378,6 +378,15 @@
     if(["title","ko","yt","file"].indexOf(key)<0 || typeof value!=="string") return value;
     return value.replace(/\s*[\r\n\u2028\u2029]+\s*/g," ").trim();
   }
+  function appendNoteTags(value,tags){
+    value=String(value||"");
+    var present=value.trim().split(/\s+/), missing=[];
+    (Array.isArray(tags)?tags:[]).forEach(function(tag){
+      if(typeof tag!=="string" || !/^#[^\s#]+$/.test(tag)) return;
+      if(present.indexOf(tag)<0){missing.push(tag);present.push(tag);}
+    });
+    return missing.length ? value.replace(/\s+$/,"")+(value.trim()?" ":"")+missing.join(" ") : value;
+  }
   function normalizeNoteEntry(entry){
     var copy=Object.assign({},entry);
     ["title","ko","yt","file"].forEach(function(key){
@@ -395,6 +404,35 @@
   var mergeSkipped=0;
   function mergeIn(days){
     mergeSkipped=0;
+    // Explicit dated relocation only. Carry browser edits with the old card.
+    days.forEach(function(od){
+      (od.entries||[]).forEach(function(oe){
+        var move=oe.relocated_from;
+        if(!move || !move.date || !move.source_project || !oe.source_project || move.date===od.date) return;
+        var from=state.days.find(function(d){return d.date===move.date;});
+        if(!from) return;
+        var old=from.entries.find(function(e){return e.source_project===move.source_project;});
+        if(!old) return;
+        var target=state.days.find(function(d){return d.date===od.date;});
+        if(!target){target={date:od.date,entries:[]};state.days.push(target);}
+        var existing=target.entries.find(function(e){return e.source_project===oe.source_project;});
+        if(existing){
+          // Conflicting nonempty values require manual review; never discard either.
+          var conflict=Object.keys(old).some(function(k){
+            return ["source_project","relocated_from","workflow_status"].indexOf(k)<0 &&
+              String(old[k]||"").trim() && String(existing[k]||"").trim() &&
+              JSON.stringify(old[k])!==JSON.stringify(existing[k]);
+          });
+          if(conflict){mergeSkipped++;return;}
+          Object.keys(old).forEach(function(k){if(!String(existing[k]||"").trim())existing[k]=old[k];});
+        }else{
+          existing=Object.assign({},old);target.entries.push(existing);
+        }
+        existing.source_project=oe.source_project;
+        existing.relocated_from=move;
+        from.entries=from.entries.filter(function(e){return e!==old;});
+      });
+    });
     var KEYS=["work","ch","title","ko","yt","desc","folder","file","link","script","brief","workflow_status","source_project","request_index"];
     var newest=null;
     days.forEach(function(od){
@@ -441,6 +479,17 @@
           var v=String(oe[k] == null ? "" : oe[k]).trim();
           if(v && !String(ex[k] == null ? "" : ex[k]).trim()){ ex[k]=oe[k]; newest=od.date; }
         });
+        // Per-card additions preserve existing user titles/descriptions.
+        if(Array.isArray(oe.extra_yt_tags)){
+          ex.extra_yt_tags=oe.extra_yt_tags.slice();
+          var taggedYt=appendNoteTags(ex.yt,oe.extra_yt_tags);
+          if(taggedYt!==ex.yt){ex.yt=taggedYt;newest=od.date;}
+        }
+        if(Array.isArray(oe.extra_desc_tags)){
+          ex.extra_desc_tags=oe.extra_desc_tags.slice();
+          var taggedDesc=appendNoteTags(ex.desc,oe.extra_desc_tags);
+          if(taggedDesc!==ex.desc){ex.desc=taggedDesc;newest=od.date;}
+        }
       });
       day.entries=ordered.concat(original.filter(function(e){return taken.indexOf(e)<0;}));
     });
@@ -668,12 +717,13 @@
     "치라미":"#アベンジャーズ #マーベル #マーベル映画"
     // "오이시":"…"  ← 필요해지면 여기 한 줄 추가
   };
-  function ytTagsOf(obj){ return YT_TAGS[(obj.ch||"").trim()]||""; }
+  function ytTagsOf(obj){ return appendNoteTags(YT_TAGS[(obj.ch||"").trim()]||"",obj.extra_yt_tags); }
   function applyYtTags(obj, ytNode){
     var tags=ytTagsOf(obj); if(!tags) return;
     var yt=(obj.yt||"").trim(); if(!yt) return;
-    if(yt.indexOf(tags)>=0) return;
-    obj.yt=yt+" "+tags;
+    var tagged=appendNoteTags(yt,tags.split(/\s+/));
+    if(tagged===yt) return;
+    obj.yt=tagged;
     if(ytNode) ytNode.textContent=obj.yt;
     markDirty(); refreshKakao();
   }
@@ -1154,7 +1204,7 @@
               var before=JSON.stringify(state);
               // 선택한 날짜와 아직 없는 새 날짜를 반영한다. 다른 기존 날짜는 보존한다.
               var knownDates=state.days.map(function(day){ return day.date; });
-              var added=mergeIn(d.days.filter(function(day){ return day.date===sel || knownDates.indexOf(day.date)<0; }));
+              var added=mergeIn(d.days.filter(function(day){ return day.date===sel || knownDates.indexOf(day.date)<0 || (day.entries||[]).some(function(e){return !!e.relocated_from;}); }));
               if(JSON.stringify(state)!==before){
                 var nw=JSON.stringify(state);
                 saved=nw; setDirty(false);
