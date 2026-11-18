@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v44</div>
+      <div class="ver" id="ver">v45</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -1164,7 +1164,9 @@
   function idbSet(k,v){
     return idb().then(function(db){ return new Promise(function(res){
       var r=db.transaction("kv","readwrite").objectStore("kv").put(v,k);
-      r.onsuccess=function(){ res(true); }; r.onerror=function(){ res(false); };
+      var tx=r.transaction;
+      tx.oncomplete=function(){ db.close(); res(true); };
+      tx.onerror=tx.onabort=function(){ db.close(); res(false); };
     });})["catch"](function(){ return false; });
   }
   function hardReload(){                     // 캐시 무시하고 새로 받기
@@ -1172,42 +1174,79 @@
   }
   function hint(t){ document.getElementById("uphint").textContent=t||""; }
 
-  idbGet("dir").then(function(h){
-    if(h){ dirHandle=h; hint("연결됨 · 눌러서 최신으로"); }
-    else hint("처음엔 업로드노트 폴더를 골라줘요");
+  var dirReady=idbGet("dir").then(function(h){
+    if(h){ dirHandle=h; hint("연결 폴더: "+h.name+" · 눌러서 최신으로"); }
+    else hint("폴더 연결 필요 · 업데이트에서 업로드노트 폴더를 선택");
   });
 
-  function ensureDir(){
+  function validateNoteDir(dir){
+    return readIn(dir,"data.json").then(function(json){
+      if(json){
+        var data;
+        try{ data=JSON.parse(json); }catch(e){ throw new Error("data.json 형식이 잘못됐어요"); }
+        if(data && Array.isArray(data.days)) return dir;
+        throw new Error("업로드 노트의 data.json이 아니에요");
+      }
+      // 상위 업로드노트 폴더와 홈페이지저장소 둘 다 연결할 수 있다.
+      return dir.getDirectoryHandle("홈페이지저장소").then(function(child){
+        return readIn(child,"data.json").then(function(text){
+          var data=text && JSON.parse(text);
+          if(data && Array.isArray(data.days)) return child;
+          throw new Error("업로드노트 폴더 안에 data.json이 없어요");
+        });
+      }).catch(function(e){
+        if(e && (e.name==="NotAllowedError" || e.name==="SecurityError")) throw e;
+        throw new Error("업로드노트 폴더를 선택해 주세요 — data.json을 찾지 못했어요");
+      });
+    });
+  }
+  function rememberNoteDir(h){
+    return validateNoteDir(h).then(function(valid){
+      dirHandle=valid;
+      return idbSet("dir",valid).then(function(stored){
+        hint("연결 폴더: "+valid.name+(stored?" · 눌러서 최신으로":" · 이번 창에서만 연결됨"));
+        return valid;
+      });
+    });
+  }
+  function pickNoteDir(){
     if(!window.showDirectoryPicker){
       toast("이 브라우저는 폴더 연결을 지원 안 해요 — [가져오기]로 파일을 골라주세요",5000);
       return Promise.reject("unsupported");
     }
-    if(dirHandle){
-      return dirHandle.queryPermission({mode:"read"}).then(function(p){
-        if(p==="granted") return dirHandle;
-        return dirHandle.requestPermission({mode:"read"}).then(function(p2){
-          if(p2==="granted") return dirHandle;
+    toast("문서 → capcut-autopilot → 업로드노트에서 [폴더 선택]을 누르세요 · 파일이 안 보이는 것은 정상이에요",10000);
+    return window.showDirectoryPicker({id:"sway-upload-notes",mode:"read",startIn:dirHandle||"documents"}).then(rememberNoteDir);
+  }
+  function ensureDir(){
+    return dirReady.then(function(){
+      if(!dirHandle) return pickNoteDir();
+      var h=dirHandle;
+      return h.queryPermission({mode:"read"}).then(function(p){
+        if(p==="granted") return h;
+        return h.requestPermission({mode:"read"}).then(function(p2){
+          if(p2==="granted") return h;
           throw "denied";
         });
+      }).then(validateNoteDir).catch(function(e){
+        hint("폴더 연결 확인 필요 · 옆의 폴더 다시 고르기");
+        throw e;
       });
-    }
-    return window.showDirectoryPicker().then(function(h){
-      dirHandle=h; return idbSet("dir",h).then(function(){ hint("연결됨 · 눌러서 최신으로"); return h; });
     });
   }
   function readIn(dir,name){
     return dir.getFileHandle(name).then(function(fh){ return fh.getFile(); })
-      .then(function(f){ return f.text(); })["catch"](function(){ return null; });
+      .then(function(f){ return f.text(); })["catch"](function(e){
+        if(e && e.name==="NotFoundError") return null;
+        throw e;
+      });
   }
 
   document.getElementById("redir").onclick=function(e){
     e.preventDefault();
     if(!window.showDirectoryPicker){ toast("이 브라우저는 폴더 연결을 지원 안 해요",4000); return; }
-    window.showDirectoryPicker().then(function(h){
-      dirHandle=h; return idbSet("dir",h).then(function(){
-        hint("연결됨 · 눌러서 최신으로"); toast("폴더를 바꿨어요 — 이제 🔄 업데이트를 눌러줘요",4500);
-      });
-    })["catch"](function(){});
+    pickNoteDir().then(function(){
+      toast("폴더를 연결했어요 — 이제 🔄 업데이트를 눌러줘요",4500);
+    }).catch(function(e){ if(e && e.name!=="AbortError") toast(e.message||String(e),7000); });
   };
 
   document.getElementById("upd").onclick=function(){
@@ -1283,7 +1322,8 @@
         });
       });
     })["catch"](function(e){
-      if(e==="denied") done("폴더 권한이 필요해요 — 다시 눌러서 허용해 주세요",5000);
+      if(e && e.name==="AbortError") done("폴더 선택을 취소했어요 · 기록은 그대로예요");
+      else if(e==="denied" || (e && e.name==="NotAllowedError")) done("폴더 연결 권한이 없어요 — 폴더 다시 고르기로 업로드노트를 연결해 주세요",7000);
       else if(e==="unsupported") done("");
       else done("업데이트 중 오류가 발생했어요 — "+(e && e.message || String(e)),7000);
     });
