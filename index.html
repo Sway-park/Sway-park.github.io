@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v46</div>
+      <div class="ver" id="ver">v47</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -524,6 +524,28 @@
     });
     applyNoteDeletions();
     return newest && state.days.some(function(d){return d.date===newest;}) ? newest : null;
+  }
+
+  // Requested corrections apply to matching saved projects even on another selected date.
+  function syncExistingNotes(days){
+    days.forEach(function(incoming){
+      var day=state.days.find(function(item){return item.date===incoming.date;});
+      if(!day) return;
+      incoming.entries.forEach(function(source){
+        if(!source.sync_existing_note || !source.source_project) return;
+        var card=day.entries.find(function(item){return item.source_project===source.source_project;});
+        if(!card) return;
+        if(typeof source.script_correction_from==="string" && source.script){
+          var current=String(card.script||"").replace(/\r\n/g,"\n").trim();
+          if(!current || current===source.script_correction_from.trim()) card.script=source.script;
+          if(card.script===source.script) card.workflow_status=source.workflow_status;
+        }
+        if(Array.isArray(source.extra_desc_tags)){
+          card.extra_desc_tags=source.extra_desc_tags.slice();
+          card.desc=appendNoteTags(card.desc || source.desc,source.extra_desc_tags);
+        }
+      });
+    });
   }
 
   function merge(other){
@@ -1274,6 +1296,7 @@
               // 선택한 날짜와 아직 없는 새 날짜를 반영한다. 다른 기존 날짜는 보존한다.
               var knownDates=state.days.map(function(day){ return day.date; });
               var added=mergeIn(d.days.filter(function(day){ return day.date===sel || knownDates.indexOf(day.date)<0 || (day.entries||[]).some(function(e){return !!e.relocated_from;}); }));
+              syncExistingNotes(d.days);
               applyNoteDeletions(d.deleted_entries);
               if(JSON.stringify(state)!==before){
                 var nw=JSON.stringify(state);
