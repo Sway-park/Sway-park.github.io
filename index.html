@@ -212,7 +212,7 @@
     <div class="brand">
       <div class="t"><b>S-Way</b> 업로드 노트</div>
       <div class="s">UPLOAD LOG</div>
-      <div class="ver" id="ver">v45</div>
+      <div class="ver" id="ver">v46</div>
     </div>
     <button class="upbtn" id="upd">🔄 업데이트</button>
     <div class="uphint" id="uphint"></div>
@@ -496,6 +496,12 @@
            oe.folder.indexOf(oe.folder_correction_from+"(")===0 &&
            /\(\d+\)$/.test(oe.folder)){
           ex.folder=oe.folder; newest=od.date;
+        }
+        if(oe.relocated_from && ex.source_project===oe.source_project){
+          ["label","folder","request_index"].forEach(function(k){
+            var oldValue=oe.relocated_from[k];
+            if(oldValue!=null && String(ex[k])===String(oldValue) && oe[k]!=null) ex[k]=oe[k];
+          });
         }
         taken.push(ex); ordered.push(ex);
         KEYS.forEach(function(k){
