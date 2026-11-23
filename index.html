@@ -535,7 +535,7 @@
         if(!source.sync_existing_note || !source.source_project) return;
         var card=day.entries.find(function(item){return item.source_project===source.source_project;});
         if(!card) return;
-        ["work","brief","desc","link"].forEach(function(key){
+        ["work","brief","desc","link","title","ko","yt","file"].forEach(function(key){
           var prior=source.note_fields_from;
           if(!prior || !Object.prototype.hasOwnProperty.call(prior,key)) return;
           if(card[key]===prior[key] || !card[key]) card[key]=source[key];
@@ -544,7 +544,7 @@
             card.desc=source.work+card.desc.slice(prior.work.length);
           }
         });
-        if(typeof source.script_correction_from==="string" && source.script){
+        if(typeof source.script_correction_from==="string" && typeof source.script==="string"){
           var current=String(card.script||"").replace(/\r\n/g,"\n").trim();
           if(!current || current===source.script_correction_from.trim()) card.script=source.script;
           if(card.script===source.script) card.workflow_status=source.workflow_status;
